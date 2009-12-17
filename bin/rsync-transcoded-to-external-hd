@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+
+set -e
+
+if mount | grep -q /dev/sdc1
+then
+  echo "unmounting /dev/sdc1"
+  if ! umount /dev/sdc1
+  then
+    echo "can't unmount /dev/sdc1"
+    exit 1
+  fi
+fi
+if ! mount | grep -q  "on /mnt/transcoded"
+then
+  echo "mounting external hd"
+  mount /dev/sdc1 /mnt/transcoded
+fi
+cd /srv/mythtv/transcoded
+echo "synchronizing h264"
+rsync -rvL --delete h264_links/ /mnt/transcoded/transcoded/h264
+echo "synchronizing mp3"
+rsync -rvL --delete mp3_links/ /mnt/transcoded/transcoded/mp3
+echo "synchronizing iphone"
+rsync -rvL --delete iphone_links/ /mnt/transcoded/transcoded/iphone
+echo "dismounting external hd"
+umount /dev/sdc1
+
+#
+# EOF

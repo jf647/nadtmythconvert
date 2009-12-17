@@ -1,0 +1,133 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use NADTMythTV::Util;
+use Path::Class qw|dir file|;
+use File::Find::Rule;
+
+# parse args
+my %opts;
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'verbose!',
+  'debug!',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new(
+  db_cred => {
+    dsn => $cfg->{database}->{dsn},
+    user => $cfg->{database}->{user},
+    password => $cfg->{database}->{password},
+  },
+);
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+my $nadtdb = $nadtmyth->nadtdb;
+
+# find all links
+# - for original shows (linkformat is null), check if the orig recording exists both in the db and on disk.  If not, delete
+# - for converted, check if the converted file exists both in the db and on disk.  If not, delete
+my $converted_rs = $nadtdb->resultset('Converted');
+my $recorded_rs = $mythdb->resultset('Recorded');
+my @todel;
+my $deleted = 0;
+$log->debug("checking converted recordings");
+my $converted = $converted_rs->search;
+while( my $convert = $converted->next ) {
+
+  my $convertfile = file( $convert->destdir, $convert->destfile );
+  $log->debug("considering $convertfile");
+  
+  # does the converted show even exist?
+  unless( -f $convertfile ) {
+    $log->info("converted recording $convertfile does not exist on disk");
+    push @todel, [ $convert->id, $convertfile ];
+    next;
+  }
+  
+  # does the original show exist?
+  my $orig = $recorded_rs->single( {
+    chanid => $convert->chanid,
+    starttime => $convert->starttime,
+  } );
+  if( $orig ) {
+    my $origfile = NADTMythTV::Util->recordingpath( {
+      chanid => $convert->chanid,
+      starttime => $convert->starttime,
+    } );
+    die "can't get original path from database!" unless( $origfile );
+    unless( -f $origfile->{path} ) {
+      $log->info("original recording for convert $convertfile exists in DB but not on disk");
+      push @todel, [ $convert->id, $convertfile ];
+      next;
+    }
+    # is it autoexpire deleted?
+    if( 9999 == $orig->autoexpire ) {
+      $log->info("original recording for convert $convertfile is autoexpire deleted");
+      push @todel, [ $convert->id, $convertfile ];
+    }
+  }
+  else {
+    $log->info("original recording for convert $convertfile does not exist in DB");
+    push @todel, [ $convert->id, $convertfile ];
+    next;
+  }
+
+}
+
+# delete orphans found via DB
+for my $todel( @todel ) {
+  if( -f $todel->[1] ) {
+    if( unlink( $todel->[1] ) ) {
+      $log->info("removed $todel->[1] from disk");
+    }
+    else {
+      $log->error("cannot delete $todel->[1]: $!");
+    }
+  }
+  my $count = $converted_rs->search( { id => $todel->[0] } )->count;
+  if( 1 == $count ) {
+    if( my $record = $converted_rs->find( $todel->[0] ) ) {
+      if( $record->delete ) {
+        $log->info("removed $todel->[1] from database");
+        $deleted++;
+      }
+      else {
+        $log->error("can't remove $todel->[1] from database");
+      }
+    }
+    else {
+      $log->error("can't get record for $todel->[1]");
+    }
+  }
+  else {
+    $log->error("found $count rows instead of 1 for $todel->[1]");
+  }
+}
+$nadtdb->txn_commit;
+
+# all done
+$log->info("deleted $deleted converted shows");
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

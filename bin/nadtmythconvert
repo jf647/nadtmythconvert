@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use YAML;
+
+# parse args
+my %opts = (
+  replace => 0,
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'chanid=i',
+  'starttime=s',
+  'basename=s',
+  'jobid=i',
+  'mode=s',
+  'replace!',
+  'verbose!',
+  'debug!',
+);
+my %search_param;
+unless( exists $opts{mode} ) {
+  die "--mode is required";
+}
+if( exists $opts{basename} ) {
+  if( exists $opts{chanid} || exists $opts{starttime} ) {
+    die "if --basename is used, --chanid/--starttime must not be used";
+  }
+  %search_param = ( basename => $opts{basename} );
+}
+elsif( exists $opts{chanid} || exists $opts{starttime} ) {
+  unless( exists $opts{chanid} && exists $opts{starttime} ) {
+    die "if one of --chanid/--starttime is used, both are required";
+  }
+  if( exists $opts{basename} ) {
+    die "if --chanid/--starttime are used, --basename must not be used";
+  }
+  %search_param = ( chanid => $opts{chanid}, starttime => $opts{starttime} );
+}
+else {
+  die "--basename or --chanid/--starttime required";
+}
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new(
+  db_cred => {
+    dsn => $cfg->{database}->{dsn},
+    user => $cfg->{database}->{user},
+    password => $cfg->{database}->{password},
+  },
+);
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+my $nadtdb = $nadtmyth->nadtdb;
+
+# load the appropriate workflow class
+my $wfclass = "NADTMythTV::Workflow::$opts{mode}";
+eval "require $wfclass";
+if( $@ ) {
+  my $e = $@;
+  $log->logdie("can't load workflow class $wfclass: $e");
+}
+
+# instantitate a workflow
+my $wf = $wfclass->new(
+  jobid => $opts{jobid},
+  search_param => \%search_param,
+  date => time(),
+  replace => $opts{replace},
+);
+
+# kick off the workflow
+$wf->process;
+
+# commit database
+$mythdb->txn_commit;
+
+# all done
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

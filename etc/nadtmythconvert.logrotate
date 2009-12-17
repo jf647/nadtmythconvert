@@ -1,0 +1,6 @@
+/var/log/mythtv/nadtmythconvert.log {
+        daily
+        rotate 7
+        notifempty
+        copytruncate
+}

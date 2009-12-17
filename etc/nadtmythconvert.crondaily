@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# $Id$
+#
+
+sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanconverted --debug
+sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanlinks --debug
+sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanlinks --debug
+sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanlinks --debug
+
+#
+# EOF

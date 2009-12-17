@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use YAML;
+
+# parse args
+my %opts;
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'title=s',
+  'subtitle=s',
+  'jobnum=i',
+  'verbose!',
+  'debug!',
+);
+my %search_param;
+if( exists $opts{title} ) {
+  $search_param{title} = { 'like' => "%$opts{title}%" };
+}
+if( exists $opts{subtitle} ) {
+  $search_param{subtitle} = { 'like' => "%$opts{subtitle}%" };
+}
+unless( $opts{jobnum} ) {
+  die "--jobnum is required\n";
+}
+my $jobnum = 128 << $opts{jobnum};
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new(
+  db_cred => {
+    dsn => $cfg->{database}->{dsn},
+    user => $cfg->{database}->{user},
+    password => $cfg->{database}->{password},
+  },
+);
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+my $nadtdb = $nadtmyth->nadtdb;
+
+# search for programs
+my $recorded_rs = $mythdb->resultset('Recorded');
+my $jobqueue_rs = $mythdb->resultset('Jobqueue');
+my $progs = $recorded_rs->search( \%search_param );
+while( my $prog = $progs->next ) {
+  print "found ", $prog->title, ": ", $prog->subtitle, " chanid ", $prog->chanid, " starttime ", $prog->starttime, "\n";
+  $jobqueue_rs->create( {
+    chanid => $prog->chanid,
+    starttime => $prog->starttime,
+    inserttime => \'NOW()',
+    type => $jobnum,
+    statustime => \'NOW()',
+    status => 0x0001,
+    comment => "mass-enqueued using $0",
+    flags => 0x0001,    
+    hostname => '',
+    args => '',
+  } );
+}
+
+# all done
+exit(0);
+
+#
+# EOF
