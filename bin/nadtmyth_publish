@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use NADTMythTV::Util;
+use Path::Class qw|dir file|;
+use File::Find::Rule;
+
+# parse args
+my %opts;
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'location=s',
+  'verbose!',
+  'debug!',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new(
+  db_cred => {
+    dsn => $cfg->{database}->{dsn},
+    user => $cfg->{database}->{user},
+    password => $cfg->{database}->{password},
+  },
+);
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+my $nadtdb = $nadtmyth->nadtdb;
+
+# find the converted programs for the format.  Find any that are not in the
+# published list.  If not found, check titles against the match list.  For
+# anything left over, publish the file
+my %newconverted;
+my $converted_rs = $nadtdb->resultset('Converted');
+my $published_rs = $nadtdb->resultset('Published');
+my $converted = $converted_rs->search;
+while( my $convert = $converted->next ) {
+
+  my $ispublished = defined $published_rs->single( {
+    chanid => $convert->chanid,
+    starttime => $convert->starttime,
+    format => $convert->destformat,
+  } );
+
+}
+
+# create and publish an RSS feed for each format
+
+# all done
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

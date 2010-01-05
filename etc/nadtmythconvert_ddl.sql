@@ -23,3 +23,23 @@ CREATE TABLE linked (
   `linkdate` datetime NOT NULL
 );
 CREATE INDEX linked_program ON linked ( chanid, starttime, linkformat );
+
+CREATE TABLE published (
+  id int not null auto_increment primary key,
+  chanid int(10) NOT NULL,
+  starttime datetime NOT NULL,
+  format varchar(10) NOT NULL,
+  location enum('local','s3') NOT NULL,
+  title varchar(128) NOT NULL,
+  subtitle varchar(128) NOT NULL,
+  description text NOT NULL,
+  category varchar(64) NOT NULL,
+  progstart datetime NOT NULL,
+  progend datetime NOT NULL,
+  publishdir varchar(255) NOT NULL,
+  publishfile varchar(255) NOT NULL,
+  publishurl varchar(255) NOT NULL,
+  publishdate datetime NOT NULL,
+  purgedate datetime NOT NULL
+);
+CREATE UNIQUE INDEX published_program ON published ( chanid, starttime, format, location );
