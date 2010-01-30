@@ -220,7 +220,7 @@ sub fetchmeta
   
   # cleanse double quotes and slashes
   for my $key( keys %$meta ) {
-    $meta->{$key} =~ s/["?:]//g;
+    $meta->{$key} =~ s/["?:*]//g;
     $meta->{$key} =~ s|/| of |g;
   }
   
