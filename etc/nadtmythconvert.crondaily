@@ -5,9 +5,7 @@
 
 sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanconverted
 sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanlinks
-sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanlinks
-sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanlinks
-sudo -u mythtv -i /home/mythtv/bin/nadtmyth_publish --debug
+#sudo -u mythtv -i /home/mythtv/bin/nadtmyth_publish --debug
 
 #
 # EOF
