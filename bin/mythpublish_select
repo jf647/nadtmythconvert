@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'verbose!',
+  'debug!',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new(
+  db_cred => {
+    dsn => $cfg->{database}->{dsn},
+    user => $cfg->{database}->{user},
+    password => $cfg->{database}->{password},
+  },
+);
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+my $nadtdb = $nadtmyth->nadtdb;
+
+# get list of converted programs where to_publish.complete is false
+my $rs = $nadtdb->resultset('Converted');
+my $programs = $rs->search(
+  { 'to_publish.complete' => 'false' },
+  { join => 'to_publish' }
+);
+while( my $program = $programs->next ) {
+  my $rs = $mythdb->rs('Recorded');
+  my $prog = $rs->single( { chanid => $program->chanid, starttime => $program->starttime } )->single;
+  unless( $prog ) {
+    $log->logdie("can't find source program for converted id ", $program->id);
+  }
+  my $fulltitle = $prog->title . ' - ' . $prog->subtitle;
+  $log->info("found fulltitle $fulltitle");
+}
+
+# for each, build title + subtitle string and format
+# iterate over match profiles.  if format matches, do regex compare of title
+# if matched, insert entries into to_publish_dests
+
+# commit database
+$mythdb->txn_commit;
+
+# all done
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

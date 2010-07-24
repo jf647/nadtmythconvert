@@ -3,9 +3,8 @@
 # $Id$
 #
 
-sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanconverted
-sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanlinks
-#sudo -u mythtv -i /home/mythtv/bin/nadtmyth_publish --debug
+sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanup
+sudo -u mythtv -i /home/mythtv/bin/mythpublish_purge
 
 #
 # EOF

@@ -1,0 +1,32 @@
+select for publish
+------------------
+
+- get list of converted programs where to_publish.complete is false
+  - for each, build title + subtitle string and format
+  - iterate over match profiles.  if format matches, do regex compare of title
+    - if matched, insert entries into to_publish_dests
+
+publish
+-------
+
+- select unpublished from to_publish_dests
+  - for each, call publish method in appropriate module
+  - if successful, set published to true, publish_date to now() and purge_date to now() - + however many days
+
+inform
+------
+
+- select published from to_publish_dests where informed is false
+  - for each, select from to_publish_inform where informed is false
+    - for each, send email using TT
+    - if successful, set informed to true and inform_date to now()
+  - if to_publish_inform.informed is all true, set to_publish_dests.informed to true
+- remove to_publish_informed where informed is true and inform_date is more than x days in the past
+
+purge
+-----
+
+- select published from to_publish_dests where purge_date is < now()
+  - for each, call purge method in appropriate module
+  - if successful, remove record from to_publish_dests
+- if there are no to_publish_dests or to_publish_inform rows for the to_publish record, remove it

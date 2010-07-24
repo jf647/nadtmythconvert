@@ -1,0 +1,2 @@
+# select, publish then inform once every 3 hours
+15  */3 *   *   *   /home/mythtv/bin/mythpublish_select && /home/mythtv/bin/mythpublish_publish && /home/mythtv/bin/mythpublish_inform
