@@ -40,10 +40,9 @@ my $nadtmyth = NADTMythTV->new(
 
 # set up database
 my $mythdb = $nadtmyth->mythdb;
-my $nadtdb = $nadtmyth->nadtdb;
 
 # clean up links for converted shows that have been deleted
-my $converted_rs = $nadtdb->resultset('Converted');
+my $converted_rs = $mythdb->resultset('NadtmythConverted');
 my $recorded_rs = $mythdb->resultset('Recorded');
 my @todel;
 my $deleted = 0;
@@ -120,9 +119,10 @@ for my $todel( @todel ) {
     $log->error("found $count rows instead of 1 for $todel->[1]");
   }
 }
-$nadtdb->txn_commit;
+$mythdb->txn_commit;
 
 # find orphans via disk
+my %seenlinks;
 my %linkdirs;
 for my $linktemplate( @{ $cfg->{showlinks} } ) {
   my $linkdir = file( $linktemplate )->dir->stringify;

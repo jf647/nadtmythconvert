@@ -140,7 +140,7 @@ sub renametofinal
   my $self = shift;
   
   my $log = NADTMythTV->log;
-  my $nadtdb = NADTMythTV->nadtdb;
+  my $mythdb = NADTMythTV->mythdb;
 
   my $final = file( $self->dest->{path} );
   
@@ -154,7 +154,7 @@ sub renametofinal
     $log->logdie("can't chmod $final to 0640: $!");
   }
 
-  my $rs = $nadtdb->resultset('Converted');
+  my $rs = $mythdb->resultset('NadtmythConverted');
 
   $rs->create( {
     chanid => $self->recording->{dbobj}->chanid,
@@ -236,9 +236,9 @@ sub makelinks
   my $format = shift;
   
   my $log = NADTMythTV->log;
-  my $nadtdb = NADTMythTV->nadtdb;
+  my $mythdbdb = NADTMythTV->mythdb;
 
-  my $rs = $nadtdb->resultset('Linked');
+  my $rs = $mythdb->resultset('NadtmythLinked');
   
   for my $link( @$links ) {
     my $ok = 0;
@@ -280,11 +280,11 @@ sub checkreplace
   my $self = shift;
 
   my $log = NADTMythTV->log;
-  my $nadtdb = NADTMythTV->nadtdb;
+  my $mythdb = NADTMythTV->mythdb;
   
   # check if we've already done a conversion for this format
   $log->debug("checking if we've done this conversion already");
-  my $rs = $nadtdb->resultset('Converted');
+  my $rs = $mythdb->resultset('NadtmythConverted');
   my $converted = $rs->single( {
     chanid => $self->recording->{dbobj}->chanid,
     starttime => $self->recording->{dbobj}->starttime,
@@ -303,7 +303,7 @@ sub checkreplace
           $log->logdie("can't remove file $convertedfile: $!");
         }
         $converted->delete;
-        $rs = $nadtdb->resultset('Linked');
+        $rs = $mythdb->resultset('NadtmythLinked');
         my $links = $rs->search( {
           chanid => $self->recording->{dbobj}->chanid,
           starttime => $self->recording->{dbobj}->starttime,

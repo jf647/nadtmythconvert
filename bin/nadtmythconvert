@@ -71,7 +71,6 @@ my $nadtmyth = NADTMythTV->new(
 
 # set up database
 my $mythdb = $nadtmyth->mythdb;
-my $nadtdb = $nadtmyth->nadtdb;
 
 # load the appropriate workflow class
 my $wfclass = "NADTMythTV::Workflow::$opts{mode}";

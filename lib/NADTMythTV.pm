@@ -12,8 +12,7 @@ use warnings;
 
 use Log::Log4perl;
 use MythTV;
-use NADTMythTV::DB::MythTV;
-use NADTMythTV::DB::NADT;
+use NADTMythTV::DB;
 use Path::Class qw|dir file|;
 use YAML;
 
@@ -60,25 +59,6 @@ sub log
   
   return $logger;
 
-}
-
-my $nadtdb;
-sub nadtdb {
-
-  my $self = shift;
-
-  return $nadtdb if( $nadtdb );
-
-  local $SIG{__WARN__} = sub {};
-  $nadtdb = NADTMythTV::DB::NADT->connect(
-    $self->{db_cred}->{dsn},
-    $self->{db_cred}->{user},
-    $self->{db_cred}->{password},
-    { AutoCommit => 0 },
-  );
-  
-  return $nadtdb;
-  
 }
 
 my $mythdb;

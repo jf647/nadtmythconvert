@@ -84,7 +84,7 @@ __PACKAGE__->add_unique_constraint("nadtmyth_to_publish_dest_idx1", ["to_publish
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:x7gDK9yqSitsr5wP8+NKUg
 
 __PACKAGE__->belongs_to( to_publish => 'NADTMythTV::DB::Result::NadtmythToPublish', 'to_publish_id' );
-__PACKAGE__->might_have( to_publish_inform => 'NADTMythTV::DB::Result::NadtmythToPublishInform', 'to_publish_dests_id' );
+__PACKAGE__->might_have( to_publish_inform => 'NADTMythTV::DB::Result::NadtmythToPublishInform', 'to_publish_dest_id' );
 
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;

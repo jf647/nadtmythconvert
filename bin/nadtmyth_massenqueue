@@ -38,17 +38,10 @@ my $jobnum = 128 << $opts{jobnum};
 my $cfg = NADTMythTV->cfg;
 
 # set up MythTV
-my $nadtmyth = NADTMythTV->new(
-  db_cred => {
-    dsn => $cfg->{database}->{dsn},
-    user => $cfg->{database}->{user},
-    password => $cfg->{database}->{password},
-  },
-);
+my $nadtmyth = NADTMythTV->new;
 
 # set up database
 my $mythdb = $nadtmyth->mythdb;
-my $nadtdb = $nadtmyth->nadtdb;
 
 # search for programs
 my $recorded_rs = $mythdb->resultset('Recorded');
