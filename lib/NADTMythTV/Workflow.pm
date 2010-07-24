@@ -87,7 +87,6 @@ sub process
   $log->info("completed conversion");
   $self->renametofinal;
   $self->statusupdate('renamed converted file to final destination');
-  $self->makeshowlinks;
   $self->statusupdate('created symlinks to original program');
   $self->makeconvertedlinks;
   $self->statusupdate('created links to destination file');
@@ -225,25 +224,6 @@ sub fetchmeta
   }
   
   $self->meta( $meta );
-
-}
-
-sub makeshowlinks
-{
-
-  my $self = shift;
-  
-  my $log = NADTMythTV->log;
-  my $cfg = NADTMythTV->cfg;
-
-  my @links;
-  
-  for my $linkspec( @{ $cfg->{showlinks} } ) {
-    my $link = NADTMythTV::Util->expandmeta( $linkspec, $self->meta );
-    push @links, $link;
-  }
-  
-  $self->makelinks( $self->recording->{path}, \@links );
 
 }
 

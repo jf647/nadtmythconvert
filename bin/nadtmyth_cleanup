@@ -42,9 +42,7 @@ my $nadtmyth = NADTMythTV->new(
 my $mythdb = $nadtmyth->mythdb;
 my $nadtdb = $nadtmyth->nadtdb;
 
-# find all links
-# - for original shows (linkformat is null), check if the orig recording exists both in the db and on disk.  If not, delete
-# - for converted, check if the converted file exists both in the db and on disk.  If not, delete
+# clean up links for converted shows that have been deleted
 my $converted_rs = $nadtdb->resultset('Converted');
 my $recorded_rs = $mythdb->resultset('Recorded');
 my @todel;
@@ -123,6 +121,36 @@ for my $todel( @todel ) {
   }
 }
 $nadtdb->txn_commit;
+
+# find orphans via disk
+my %linkdirs;
+for my $linktemplate( @{ $cfg->{showlinks} } ) {
+  my $linkdir = file( $linktemplate )->dir->stringify;
+  $linkdirs{$linkdir}++;
+}
+for my $outputtype( keys %{ $cfg->{output} } ) {
+  for my $linktemplate( @{ $cfg->{output}->{$outputtype}->{links} } ) {
+    my $linkdir = file( $linktemplate )->dir->stringify;
+    $linkdirs{$linkdir}++;
+  }
+}
+for my $linkdir( keys %linkdirs ) {
+  my $rule = File::Find::Rule->symlink->start($linkdir);
+  while( my $link = $rule->match ) {
+    unless( exists $seenlinks{$link} ) {
+      $log->debug("considering non-DB link $link");
+      my $dest = file( $link )->resolve;
+      unless( -f $dest ) {
+        $log->info("$link points to $dest which does not exist");
+        unless( unlink( $link ) ) {
+          $log->error("cannot delete $link: $!");
+        }
+        $deleted++;
+      }
+    }
+  }
+}
+
 
 # all done
 $log->info("deleted $deleted converted shows");

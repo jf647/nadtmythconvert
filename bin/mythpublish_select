@@ -62,21 +62,23 @@ while( my $convert = $converts->next ) {
     if( $convert->destformat eq $matchprofile->{format} && $fulltitle =~ m/$rx/ ) {
 
       # create the to_publish record
-      my $rs = $nadtdb->resultset('ToPublish');
-      my $to_publish_rec = $rs->create( { id => $convert->id } )
+      my $to_publish_rec = $convert->create_related( 'to_publish', {} )
         or $log->logdie("can't create to_publish record");
+      $log->info("created to_publish record for $fulltitle");
 
       # create one or more to_publish_dest records  
       for my $dest( keys %{ $matchprofile->{dest} } ) {
-        my $to_publish_dest_rec = $to_publish_rec->create_related( 'ToPublishDest', {
+        my $to_publish_dest_rec = $to_publish_rec->create_related( 'to_publish_dest', {
           dest => $dest
         } ) or $log->logdie("can't create to_publish_dest record");
+      $log->info("created to_publish_dest record for $fulltitle on $dest");
 
         # create one or more to_publish_inform records
         for my $email( @{ $matchprofile->{dest}->{$dest}->{inform} } ) {
-          my $to_publish_inform_rec = $to_publish_dest_rec->create_related( 'ToPublishInform', {
+          my $to_publish_inform_rec = $to_publish_dest_rec->create_related( 'to_publish_inform', {
             email => $email,
           } ) or $log->logdie("can't create to_publish_inform record");
+          $log->info("created to_publish_inform record for $fulltitle on $dest to $email");
         }
       }
 
