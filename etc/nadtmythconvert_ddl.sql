@@ -47,6 +47,7 @@ CREATE TABLE to_publish_inform (
   to_publish_dests_id int not null references to_publish_dests(id),
   email VARCHAR(50) NOT NULL,
   informed boolean default false,
-  inform_date datetime
+  inform_date datetime,
+  purge_date datetime
 );
 CREATE UNIQUE INDEX to_publish_inform_idx1 ON to_publish_inform( to_publish_dests_id, email );

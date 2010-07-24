@@ -44,25 +44,45 @@ my $nadtmyth = NADTMythTV->new(
 my $mythdb = $nadtmyth->mythdb;
 my $nadtdb = $nadtmyth->nadtdb;
 
-# get list of converted programs where to_publish.complete is false
+# get list of converted programs where there is no to_publish record
 my $rs = $nadtdb->resultset('Converted');
-my $programs = $rs->search(
-  { 'to_publish.complete' => 'false' },
+my $converts = $rs->search(
+  { 'to_publish.complete' => undef },
   { join => 'to_publish' }
 );
-while( my $program = $programs->next ) {
-  my $rs = $mythdb->rs('Recorded');
-  my $prog = $rs->single( { chanid => $program->chanid, starttime => $program->starttime } )->single;
-  unless( $prog ) {
-    $log->logdie("can't find source program for converted id ", $program->id);
+while( my $convert = $converts->next ) {
+  my $rs = $mythdb->resultset('Recorded');
+  my $recorded_rec = $rs->single( { chanid => $convert->chanid, starttime => $convert->starttime } );
+  unless( $recorded_rec ) {
+    $log->logdie("can't find source program for converted id ", $convert->id);
   }
-  my $fulltitle = $prog->title . ' - ' . $prog->subtitle;
-  $log->info("found fulltitle $fulltitle");
-}
+  my $fulltitle = $recorded_rec->title . ' - ' . $recorded_rec->subtitle;
+  for my $matchprofile( @{ $cfg->{publish}->{match} } ) {
+    my $rx = $matchprofile->{regex};
+    if( $convert->destformat eq $matchprofile->{format} && $fulltitle =~ m/$rx/ ) {
 
-# for each, build title + subtitle string and format
-# iterate over match profiles.  if format matches, do regex compare of title
-# if matched, insert entries into to_publish_dests
+      # create the to_publish record
+      my $rs = $nadtdb->resultset('ToPublish');
+      my $to_publish_rec = $rs->create( { id => $convert->id } )
+        or $log->logdie("can't create to_publish record");
+
+      # create one or more to_publish_dest records  
+      for my $dest( keys %{ $matchprofile->{dest} } ) {
+        my $to_publish_dest_rec = $to_publish_rec->create_related( 'ToPublishDest', {
+          dest => $dest
+        } ) or $log->logdie("can't create to_publish_dest record");
+
+        # create one or more to_publish_inform records
+        for my $email( @{ $matchprofile->{dest}->{$dest}->{inform} } ) {
+          my $to_publish_inform_rec = $to_publish_dest_rec->create_related( 'ToPublishInform', {
+            email => $email,
+          } ) or $log->logdie("can't create to_publish_inform record");
+        }
+      }
+
+    }
+  }
+}
 
 # commit database
 $mythdb->txn_commit;
