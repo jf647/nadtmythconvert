@@ -1,2 +1,2 @@
 # select, publish then inform once every 3 hours
-15  */3 *   *   *   /home/mythtv/bin/mythpublish_select
+15  */3 *   *   *   sudo -u mythtv -i /home/mythtv/bin/mythpublish_select

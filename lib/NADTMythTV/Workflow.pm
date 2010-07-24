@@ -236,7 +236,7 @@ sub makelinks
   my $format = shift;
   
   my $log = NADTMythTV->log;
-  my $mythdbdb = NADTMythTV->mythdb;
+  my $mythdb = NADTMythTV->mythdb;
 
   my $rs = $mythdb->resultset('NadtmythLinked');
   
