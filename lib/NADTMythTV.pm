@@ -69,7 +69,7 @@ sub mythdb {
   return $mythdb if( $mythdb );
 
   local $SIG{__WARN__} = sub {};
-  $mythdb = NADTMythTV::DB::MythTV->connect(
+  $mythdb = NADTMythTV::DB->connect(
     "dbi:mysql:database=$MythTV::mysql_conf{db_name}:host=$MythTV::mysql_conf{db_host};port=$MythTV::mysql_conf{db_port}",
     $MythTV::mysql_conf{db_user},
     $MythTV::mysql_conf{db_pass},
@@ -88,7 +88,7 @@ sub mythdb_ac {
   return $mythdb_ac if( $mythdb_ac );
 
   local $SIG{__WARN__} = sub {};
-  $mythdb_ac = NADTMythTV::DB::MythTV->connect(
+  $mythdb_ac = NADTMythTV::DB->connect(
     "dbi:mysql:database=$MythTV::mysql_conf{db_name}:host=$MythTV::mysql_conf{db_host};port=$MythTV::mysql_conf{db_port}",
     $MythTV::mysql_conf{db_user},
     $MythTV::mysql_conf{db_pass},

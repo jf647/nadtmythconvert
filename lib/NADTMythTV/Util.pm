@@ -204,13 +204,21 @@ sub recordingpath
 {
 
   my $class = shift;
-  my $searchparam = shift;
+  my $what = shift;
 
   my $mythdb = NADTMythTV->mythdb;
-  my $recorded_rs = $mythdb->resultset('Recorded');
+
+  my $recording;
+  if( ref $what eq 'NADTMythTV::DB::Result::Recorded' ) {
+    $recording = $what;
+  }
+  else {
+    my $mythdb = NADTMythTV->mythdb;
+    my $recorded_rs = $mythdb->resultset('Recorded');
+    $recording = $recorded_rs->single( $what );
+    return undef unless( $recording );
+  }
   my $storagegroup_rs = $mythdb->resultset('Storagegroup');
-  my $recording = $recorded_rs->single( $searchparam );
-  return undef unless( $recording );
   my $storagegroup = $storagegroup_rs->single( {
     groupname => $recording->storagegroup,
     hostname  => $recording->hostname,

@@ -99,7 +99,7 @@ __PACKAGE__->add_unique_constraint("nadtmyth_idx1", ["chanid", "starttime", "des
 # Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:u73/WAjasTauKC391ao7gg
 
-__PACKAGE__->belongs_to( recorded => 'NADTMythTV::DB::Result::Converted', {
+__PACKAGE__->belongs_to( recorded => 'NADTMythTV::DB::Result::Recorded', {
   'foreign.chanid' => 'self.chanid',
   'foreign.starttime' => 'self.starttime',
 } );

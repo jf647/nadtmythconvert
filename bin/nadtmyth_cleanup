@@ -30,130 +30,165 @@ my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
 $log->info('START');
 
 # set up MythTV
-my $nadtmyth = NADTMythTV->new(
-  db_cred => {
-    dsn => $cfg->{database}->{dsn},
-    user => $cfg->{database}->{user},
-    password => $cfg->{database}->{password},
-  },
-);
+my $nadtmyth = NADTMythTV->new;
 
 # set up database
 my $mythdb = $nadtmyth->mythdb;
-
-# clean up links for converted shows that have been deleted
-my $converted_rs = $mythdb->resultset('NadtmythConverted');
 my $recorded_rs = $mythdb->resultset('Recorded');
-my @todel;
-my $deleted = 0;
-$log->debug("checking converted recordings");
-my $converted = $converted_rs->search;
-while( my $convert = $converted->next ) {
+my $converted_rs = $mythdb->resultset('NadtmythConverted');
+my $linked_rs = $mythdb->resultset('NadtmythLinked');
 
-  my $convertfile = file( $convert->destdir, $convert->destfile );
-  $log->debug("considering $convertfile");
-  
-  # does the converted show even exist?
-  unless( -f $convertfile ) {
-    $log->info("converted recording $convertfile does not exist on disk");
-    push @todel, [ $convert->id, $convertfile ];
-    next;
-  }
-  
-  # does the original show exist?
-  my $orig = $recorded_rs->single( {
-    chanid => $convert->chanid,
-    starttime => $convert->starttime,
-  } );
-  if( $orig ) {
-    my $origfile = NADTMythTV::Util->recordingpath( {
-      chanid => $convert->chanid,
-      starttime => $convert->starttime,
-    } );
-    die "can't get original path from database!" unless( $origfile );
-    unless( -f $origfile->{path} ) {
-      $log->info("original recording for convert $convertfile exists in DB but not on disk");
-      push @todel, [ $convert->id, $convertfile ];
-      next;
-    }
-    # is it autoexpire deleted?
-    if( 9999 == $orig->autoexpire ) {
-      $log->info("original recording for convert $convertfile is autoexpire deleted");
-      push @todel, [ $convert->id, $convertfile ];
-    }
-  }
-  else {
-    $log->info("original recording for convert $convertfile does not exist in DB");
-    push @todel, [ $convert->id, $convertfile ];
-    next;
-  }
-
+# build convert dirs
+my @convertdirs;
+for my $outputtype( keys %{ $cfg->{output} } ) {
+  push @convertdirs, $cfg->{output}->{$outputtype}->{dir};
 }
 
-# delete orphans found via DB
-for my $todel( @todel ) {
-  if( -f $todel->[1] ) {
-    if( unlink( $todel->[1] ) ) {
-      $log->info("removed $todel->[1] from disk");
-    }
-    else {
-      $log->error("cannot delete $todel->[1]: $!");
-    }
-  }
-  my $count = $converted_rs->search( { id => $todel->[0] } )->count;
-  if( 1 == $count ) {
-    if( my $record = $converted_rs->find( $todel->[0] ) ) {
-      if( $record->delete ) {
-        $log->info("removed $todel->[1] from database");
-        $deleted++;
-      }
-      else {
-        $log->error("can't remove $todel->[1] from database");
-      }
-    }
-    else {
-      $log->error("can't get record for $todel->[1]");
-    }
-  }
-  else {
-    $log->error("found $count rows instead of 1 for $todel->[1]");
-  }
-}
-$mythdb->txn_commit;
-
-# find orphans via disk
-my %seenlinks;
+# build link dirs
 my %linkdirs;
-for my $linktemplate( @{ $cfg->{showlinks} } ) {
-  my $linkdir = file( $linktemplate )->dir->stringify;
-  $linkdirs{$linkdir}++;
-}
 for my $outputtype( keys %{ $cfg->{output} } ) {
   for my $linktemplate( @{ $cfg->{output}->{$outputtype}->{links} } ) {
     my $linkdir = file( $linktemplate )->dir->stringify;
     $linkdirs{$linkdir}++;
   }
 }
-for my $linkdir( keys %linkdirs ) {
-  my $rule = File::Find::Rule->symlink->start($linkdir);
-  while( my $link = $rule->match ) {
-    unless( exists $seenlinks{$link} ) {
-      $log->debug("considering non-DB link $link");
-      my $dest = file( $link )->resolve;
-      unless( -f $dest ) {
-        $log->info("$link points to $dest which does not exist");
-        unless( unlink( $link ) ) {
-          $log->error("cannot delete $link: $!");
-        }
-        $deleted++;
+
+# loop until we pass through without doing anything
+my $done = 0;
+my $touched;
+my @todel;
+while( ! $done ) {
+  
+  $touched = 0;
+
+  # remove converted records that have no recorded record
+  $log->info("looking for converted records without originals");
+  my $converted = $converted_rs->search;
+  undef @todel;
+  while( my $convert = $converted->next ) {
+    unless( $convert->recorded ) {
+      push @todel, $convert->id;
+      next;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("deleting converted record $todel: original has been deleted");
+    $converted_rs->find( $todel )->delete;
+    $touched++;
+  }
+  
+  # remove converted records that are autoexpire deleted
+  $log->info("looking for converted records that are autoexpired");
+  $converted = $converted_rs->search;
+  undef @todel;
+  while( my $convert = $converted->next ) {
+    if( 9999 == $convert->recorded->autoexpire ) {
+      push @todel, $convert->id;
+      next;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("deleting converted record $todel: original is autoexpired");
+    $converted_rs->find( $todel )->delete;
+    $touched++;
+  }
+  
+  # remove links that have no converted record
+  $log->info("looking for links with no converted record");
+  my $linked = $linked_rs->search;
+  undef @todel;
+  while( my $link = $linked->next ) {
+    unless( $link->converted ) {
+      push @todel, $link->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("deleting linked record $todel: converted has been deleted");
+    $linked_rs->find( $todel )->delete;
+    $touched++;
+  }
+
+  # iterate over convert records, removing any that aren't on disk
+  $log->info("looking for converted records no longer on disk");
+  $converted = $converted_rs->search;
+  undef @todel;
+  while( my $convert = $converted->next ) {
+    my $convertpath = file( $convert->destdir, $convert->destfile );
+    unless( -f $convertpath ) {
+      push @todel, $convert->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("deleting converted record $todel: file on disk no longer exists");
+    $converted_rs->find( $todel )->delete;
+    $touched++;
+  }
+
+  # iterate over link records, removing any that aren't on disk
+  $log->info("looking for linked records no longer on disk");
+  $linked = $linked_rs->search;
+  undef @todel;
+  while( my $link = $linked->next ) {
+    my $linkpath = file( $link->linkdir, $link->linkfile );
+    unless( -l $linkpath ) {
+      push @todel, $link->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("deleting linked record $todel: link on disk no longer exists");
+    $linked_rs->find( $todel )->delete;
+    $touched++;
+  }
+  
+  # iterate over converts on disk, removing any that aren't in the DB
+  $log->info("looking for converts on disk not in DB");
+  undef @todel;
+  for my $convertdir( @convertdirs ) {
+    my $rule = File::Find::Rule->file->start($convertdir);
+    while( my $file = $rule->match ) {
+      $file = file( $file );
+      unless( $converted_rs->single( { destdir => $file->dir, destfile => $file->basename } ) ) {
+        push @todel, $file;
       }
     }
   }
-}
+  for my $todel( @todel ) {
+    $log->info("removing $todel: no matching DB record");
+    unless( unlink( $todel ) ) {
+      $log->error("cannot delete $todel: $!");
+    }
+    $touched++
+  }
+  
+  # iterate over links on disk, removing any that don't resolve
+  $log->info("looking for links on disk that don't resolve");
+  undef @todel;
+  for my $linkdir( keys %linkdirs ) {
+    my $rule = File::Find::Rule->symlink->start($linkdir);
+    while( my $link = $rule->match ) {
+      my $dest = file( $link )->resolve;
+      unless( -f $dest ) {
+        push @todel, $link;
+      }
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("removing $todel: referant does not exist on disk");
+    unless( unlink( $todel ) ) {
+      $log->error("cannot delete $todel: $!");
+    }
+    $touched++
+  }
 
+  # we are only done if nothing has been touched
+  $done = 1 if( 0 == $touched );
+
+}  
+
+# commit the transaction
+$mythdb->txn_commit;
 
 # all done
-$log->info("deleted $deleted converted shows");
 $log->info('STOP');
 exit(0);
 
