@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'verbose!',
+  'debug!',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb_ac;
+
+# find to_publish records where complete is false
+my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
+my $to_publish_it = $to_publish_rs->search( { complete => 0 } );
+while( my $to_publish = $to_publish_rs->next ) {
+  my $convert = $to_publish->converted;
+  my $orig = $convert->recorded;
+  my $fulltitle;
+  if( $orig->subtitle ) {
+    $fulltitle = $orig->title . ' - ' . $orig->subtitle;
+  }
+  else {
+    $fulltitle = $orig->title;
+  }
+  my $starttime = $orig->starttime;
+  $log->info("processing to_publish record for $fulltitle at $starttime");
+  my $dests = $to_publish->to_publish_dest;
+  while( my $dest = $dests->next ) {
+    $log->info("processing destination ", $dest->dest);
+    # load the dest module if we haven't already
+    # call the publish method
+    # update published, publish_date and purge_date
+    $dest->published(1);
+    $dest->publish_date( \'NOW()' );
+    $dest->purge_date( \"NOW() + INTERVAL " . $dest->purge_days . " DAY" );
+    $dest->update;
+  }
+}
+
+# commit database
+$mythdb->txn_commit;
+
+# all done
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

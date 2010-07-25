@@ -37,10 +37,18 @@ CREATE TABLE nadtmyth_to_publish_dest (
   dest VARCHAR(10) not null,
   published boolean default false,
   publish_date datetime,
+  purge_days int NOT NULL,
   purge_date datetime,
   informed boolean default false
 );
 CREATE UNIQUE INDEX nadtmyth_to_publish_dest_idx1 ON nadtmyth_to_publish_dest( to_publish_id, dest );
+
+CREATE TABLE nadtmyth_publish_s3 (
+  id int not null auto_increment primary key,
+  to_publish_dest_id int not null references nadtmyth_to_publish_dest(id),
+  url VARCHAR(250)
+);
+CREATE UNIQUE INDEX nadtmyth_publish_s3_idx1 ON nadtmyth_publish_s3( to_publish_dest_id );
 
 CREATE TABLE nadtmyth_to_publish_inform (
   id int not null auto_increment primary key,
