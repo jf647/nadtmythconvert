@@ -200,6 +200,21 @@ sub expandmeta
 
 }
 
+sub fulltitle
+{
+
+  my $class = shift;
+  my $orig = shift;
+  
+  if( $orig->subtitle ) {
+    return $orig->title . ' - ' . $orig->subtitle;
+  }
+  else {
+    return $orig->title;
+  }
+
+}
+
 sub recordingpath
 {
 

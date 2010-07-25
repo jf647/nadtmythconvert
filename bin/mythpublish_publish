@@ -9,6 +9,8 @@ use lib "$FindBin::Bin/../lib";
 
 use Getopt::Long;
 use NADTMythTV;
+use NADTMythTV::Util;
+use NADTMythTV::Publish::S3;
 use YAML;
 
 # parse args
@@ -39,24 +41,20 @@ my $mythdb = $nadtmyth->mythdb_ac;
 
 # find to_publish records where complete is false
 my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
-my $to_publish_it = $to_publish_rs->search( { complete => 0 } );
+my $to_publish_it = $to_publish_rs->search( { all_published => 0 } );
 while( my $to_publish = $to_publish_rs->next ) {
   my $convert = $to_publish->converted;
   my $orig = $convert->recorded;
-  my $fulltitle;
-  if( $orig->subtitle ) {
-    $fulltitle = $orig->title . ' - ' . $orig->subtitle;
-  }
-  else {
-    $fulltitle = $orig->title;
-  }
+  my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
   my $starttime = $orig->starttime;
   $log->info("processing to_publish record for $fulltitle at $starttime");
   my $dests = $to_publish->to_publish_dest;
   while( my $dest = $dests->next ) {
-    $log->info("processing destination ", $dest->dest);
-    # load the dest module if we haven't already
+    $log->info("processing destination ", $dest->dest, " using $cfg->{publish}->{dests}->{$dest->dest}->{type}");
+    # instantiate a processor
+    my $processor = $cfg->{publish}->{dests}->{$dest->dest}->{type}->new;
     # call the publish method
+    $processor->publish( $dest );
     # update published, publish_date and purge_date
     $dest->published(1);
     $dest->publish_date( \'NOW()' );
@@ -64,9 +62,6 @@ while( my $to_publish = $to_publish_rs->next ) {
     $dest->update;
   }
 }
-
-# commit database
-$mythdb->txn_commit;
 
 # all done
 $log->info('STOP');

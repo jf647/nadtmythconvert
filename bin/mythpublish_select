@@ -9,6 +9,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Getopt::Long;
 use NADTMythTV;
+use NADTMythTV::Util;
 use YAML;
 
 # parse args
@@ -40,7 +41,7 @@ my $mythdb = $nadtmyth->mythdb;
 # get list of converted programs where there is no to_publish record
 my $rs = $mythdb->resultset('NadtmythConverted');
 my $converts = $rs->search(
-  { 'to_publish.complete' => undef },
+  { 'to_publish.complete' => [ 0, undef ] },
   { join => 'to_publish' }
 );
 while( my $convert = $converts->next ) {
@@ -50,36 +51,47 @@ while( my $convert = $converts->next ) {
     $log->warn("can't find source program for converted id ", $convert->id);
     next;
   }
-  my $fulltitle;
-  if( $recorded_rec->subtitle ) {
-    $fulltitle = $recorded_rec->title . ' - ' . $recorded_rec->subtitle;
-  }
-  else {
-    $fulltitle = $recorded_rec->title;
-  }
+  my $fulltitle = NADTMythTV::Util->fulltitle( $recorded_rec );
   my $starttime = $recorded_rec->starttime;
   for my $matchprofile( @{ $cfg->{publish}->{match} } ) {
     my $rx = $matchprofile->{regex};
     if( $convert->destformat eq $matchprofile->{format} && $fulltitle =~ m/$rx/ ) {
 
-      # create the to_publish record
-      my $to_publish_rec = $convert->create_related( 'to_publish', {} )
-        or $log->logdie("can't create to_publish record");
-      $log->info("created to_publish record for $fulltitle at $starttime");
+      # create the to_publish record if needed
+      my $to_publish;
+      if( $to_publish = $convert->to_publish ) {
+        $log->info("found existing to_publish record for $fulltitle at $starttime");
+      }
+      else {
+        $to_publish = $convert->create_related( to_publish => {} );
+        $log->info("created to_publish record for $fulltitle at $starttime");
+      }
 
-      # create one or more to_publish_dest records  
+      # create to_publish_dest records if needed
       for my $dest( keys %{ $matchprofile->{dest} } ) {
-        my $to_publish_dest_rec = $to_publish_rec->create_related( 'to_publish_dest', {
-          dest => $dest
-        } ) or $log->logdie("can't create to_publish_dest record");
-      $log->info("adding dest for $dest");
+        my $to_publish_dest;
+        my $dests = $to_publish->search_related( to_publish_dest => { dest => $dest } );
+        if( $dests->count ) {
+          $to_publish_dest = $dests->first;
+          $log->info("found existing to_publish_dest record for $dest");
+        }
+        else {
+          $to_publish_dest = $to_publish->create_related( to_publish_dest => { dest => $dest, purge_days => $matchprofile->{dest}->{$dest}->{keepdays} } );
+          $log->info("adding dest for $dest");
+        }
 
-        # create one or more to_publish_inform records
+        # create to_publish_inform records if needed
         for my $email( @{ $matchprofile->{dest}->{$dest}->{inform} } ) {
-          my $to_publish_inform_rec = $to_publish_dest_rec->create_related( 'to_publish_inform', {
-            email => $email,
-          } ) or $log->logdie("can't create to_publish_inform record");
-          $log->info("adding inform for $email");
+          my $to_publish_inform;
+          my $informs = $to_publish_dest->search_related( to_publish_inform => { email => $email } );
+          if( $informs->count ) {
+            $to_publish_inform = $informs->first;
+            $log->info("found existing to_publish_inform for $email; not creating another");
+          }
+          else {
+            $to_publish_inform = $to_publish_dest->create_related( to_publish_inform => { email => $email } );
+            $log->info("adding inform for $email");
+          }
         }
       }
 

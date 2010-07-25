@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use NADTMythTV::Util;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'verbose!',
+  'debug!',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+
+# find incomplete to_publish records
+my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
+my $to_publish_it = $to_publish_rs->search( { complete => 0 } );
+while( my $to_publish = $to_publish_it->next ) {
+  # get fulltitle
+  my $fulltitle = NADTMythTV::Util->fulltitle( $to_publish->converted->recorded );
+  my $starttime = $to_publish->converted->starttime;
+  
+  # iterate over dests
+  my $dests = $to_publish->to_publish_dest;
+  while( my $dest = $dests->next ) {
+    # if all informs are done, set all_informed on the dest to true
+    if( 0 == $dest->search_related( to_publish_inform => { informed => 0 } )->count ) {
+      $log->info( "all informs are done for $fulltitle at $starttime destination ", $dest->dest);
+      $dest->all_informed(1);
+      $dest->update;
+    }
+  }
+  # if all dests are published, set all_published on the to_publish to true
+  if( 0 == $to_publish->search_related( to_publish_dest => { published => 0 } )->count ) {
+    $log->info( "all publishes are done for $fulltitle at $starttime");
+    $to_publish->all_published(1);
+    $to_publish->update;
+  }
+  # if all informs on all dests are done and all dests are published, set complete to true
+  if( 0 == $to_publish->search_related( to_publish_dest => { all_informed => 0 } )->count
+      &&
+      1 == $to_publish->all_published )
+  {
+    $log->info("all publishes and informs are done for $fulltitle at $starttime");
+    $to_publish->complete( 1 );
+    $to_publish->update;
+  }
+
+}
+
+# commit database
+$mythdb->txn_commit;
+
+# all done
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

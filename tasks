@@ -12,7 +12,15 @@ inform
   - for each, select from to_publish_inform where informed is false
     - for each, send email using TT
     - if successful, set informed to true and inform_date to now()
-  - if to_publish_inform.informed is all true, set to_publish_dests.informed to true
+
+updatestatus
+------------
+
+- for each to_publish:
+  - for each to_publish_dest:
+    - if to_publish_inform.informed is all true, set to_publish_dest.informed to true
+  - if to_publish_dest.published is all true, set to_publish.all_published to true
+  - if to_publish_dest.all_informed is all true and to_publish.published is true, set to_publish.complete to true
 
 purge
 -----

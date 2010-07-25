@@ -9,6 +9,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Getopt::Long;
 use NADTMythTV;
+use NADTMythTV::Util;
 use YAML;
 
 # parse args
@@ -16,6 +17,7 @@ my %opts = (
   replace => 0,
   verbose => 0,
   debug => 0,
+  days => 7,
 );
 my @origargs = @ARGV;
 GetOptions(
@@ -26,6 +28,7 @@ GetOptions(
   'format=s',
   'dest=s',
   'email=s',
+  'days=i',
   'verbose!',
   'debug!',
 );
@@ -75,13 +78,7 @@ my $orig = $orig_rs->single( \%search_param )
   or $log->logdie("can't find original program based on search params");
 
 # build the title
-my $fulltitle;
-if( $orig->subtitle ) {
-  $fulltitle = $orig->title . ' - ' . $orig->subtitle;
-}
-else {
-  $fulltitle = $orig->title;
-}
+my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
 my $starttime = $orig->starttime;
 
 # find the associated convert record
@@ -107,7 +104,7 @@ if( $dests->count ) {
   $log->info("found existing to_publish_dest record for $opts{dest}");
 }
 else {
-  $to_publish_dest = $to_publish->create_related( 'to_publish_dest', { dest => $opts{dest} } );
+  $to_publish_dest = $to_publish->create_related( 'to_publish_dest', { dest => $opts{dest}, purge_days => $opts{days} } );
   $log->info("adding dest for $opts{dest}");
 }
 
