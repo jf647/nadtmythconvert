@@ -45,7 +45,7 @@ sub publish
   }
   
   # insert the s3 url into the database
-  my $uri = "s3://$bucketname/" . uri_escape($destname);
+  my $uri = "http://s3.amazonaws.com/$bucketname/" . uri_escape($destname);
   $dest->create_related( s3 => { objkey => $destname, url => $uri } );
 
 }

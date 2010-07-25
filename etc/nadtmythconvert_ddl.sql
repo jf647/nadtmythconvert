@@ -58,8 +58,6 @@ CREATE TABLE nadtmyth_to_publish_inform (
   to_publish_dest_id int not null references nadtmyth_to_publish_dest(id),
   email VARCHAR(50) NOT NULL,
   informed boolean default false,
-  inform_date datetime,
-  purge_date datetime
 );
 CREATE UNIQUE INDEX nadtmyth_to_publish_inform_idx1 ON nadtmyth_to_publish_inform( to_publish_dest_id, email );
 

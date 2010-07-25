@@ -42,16 +42,6 @@ __PACKAGE__->table("nadtmyth_to_publish_inform");
   default_value: 0
   is_nullable: 1
 
-=head2 inform_date
-
-  data_type: 'datetime'
-  is_nullable: 1
-
-=head2 purge_date
-
-  data_type: 'datetime'
-  is_nullable: 1
-
 =cut
 
 __PACKAGE__->add_columns(
@@ -63,10 +53,6 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 50 },
   "informed",
   { data_type => "tinyint", default_value => 0, is_nullable => 1 },
-  "inform_date",
-  { data_type => "datetime", is_nullable => 1 },
-  "purge_date",
-  { data_type => "datetime", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint(
@@ -75,8 +61,8 @@ __PACKAGE__->add_unique_constraint(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/EO5xptonxKb4aPvnjoRZw
+# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-25 18:03:15
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fwZCR7kFWv7tSSg7LYaplQ
 
 __PACKAGE__->belongs_to( to_publish_dest => 'NADTMythTV::DB::Result::NadtmythToPublishDest', 'to_publish_dest_id' );
 
