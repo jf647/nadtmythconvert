@@ -32,15 +32,16 @@ sub publish
   
   # use s3cmd to put the file in the bucket
   my $bucketname = $cfg->{publish}->{dests}->{$dest->dest}->{bucket};
-  my $destname = "$fulltitle - $starttime";
   my $convertpath = file( $convert->destdir, $convert->destfile );
+  my( $ext ) = ( $convertpath =~ m/\.(.+)$/ );
+  my $destname = "$fulltitle - $starttime.$ext";
   my $s3dest = "s3://$bucketname/$destname";
   my $command = $cfg->{publish}->{dests}->{$dest->dest}->{putcmd};
   $command =~ s/%%FILE%%/$convertpath/;
   $command =~ s/%%DEST%%/$s3dest/;
   $log->info("uploading $convertpath as $s3dest");
   if( system("$command") ) {
-    $log->logdie("can't run $command: $output");
+    $log->logdie("can't run $command");
   }
   
   # insert the s3 url into the database

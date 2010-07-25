@@ -42,7 +42,7 @@ my $mythdb = $nadtmyth->mythdb_ac;
 # find to_publish records where complete is false
 my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
 my $to_publish_it = $to_publish_rs->search( { all_published => 0 } );
-while( my $to_publish = $to_publish_rs->next ) {
+while( my $to_publish = $to_publish_it->next ) {
   my $convert = $to_publish->converted;
   my $orig = $convert->recorded;
   my $fulltitle = NADTMythTV::Util->fulltitle( $orig );

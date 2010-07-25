@@ -1,0 +1,109 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Email::Sender::Simple;
+use Email::Sender;
+use Email::Sender::Create;
+use Email::Sender::Transport::SMTP::Persistent;
+use Getopt::Long;
+use NADTMythTV;
+use NADTMythTV::Util;
+use Template;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'verbose!',
+  'debug!',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+
+# set up TT
+my $tt = Template->new( ABSOLUTE => 1 );
+
+# set up email sender
+my $transport = Email::Sender::Transport::SMTP->new( {
+  host => $cfg->{publish}->{inform}->{smtp}->{server},
+  port => $cfg->{publish}->{inform}->{smtp}->{port},
+  ssl => $cfg->{publish}->{inform}->{smtp}->{ssl},
+  sasl_username => $cfg->{publish}->{inform}->{smtp}->{user},
+  sasl_password => $cfg->{publish}->{inform}->{smtp}->{pass},
+} ) or $log->logdie("can't set up SMTP transport");
+
+# find to_publish_inform records where informed is false
+my $to_publish_inform_rs = $mythdb->resultset('NadtmythToPublishInform');
+my $to_publish_inform_it = $to_publish_inform_rs->search( { informed => 0 } );
+while( my $to_publish_inform = $to_publish_inform_it->next ) {
+
+  # get related objects
+  my $to_publish_dest = $to_publish_inform->to_publish_dest;
+  my $to_publish = $to_publish_dest->to_publish;
+  my $convert = $to_publish->converted;
+  my $orig = $convert->recorded;
+  my $s3 = $to_publish_dest->s3;
+
+  # build subject and body contents
+  my $data = {
+    fulltitme =>  NADTMythTV::Util->fulltitle( $orig ),
+    starttime => $orig->starttime,
+    url => $s3->url,
+  };
+  my $subject;
+  my $body;
+  $tt->process( $cfg->{publish}->{inform}->{template}->{subject}, $data, \$subject );
+  $tt->process( $cfg->{publish}->{inform}->{template}->{body}, $data, \$body );
+
+  # send the email
+  my $email = Email::Simple->create(
+    header => [
+      To => $to_publish_inform->email,
+      From => $cfg->{publish}->{inform}->{template}->{from},
+      Subject => $subject,
+    ],
+    body => $body,
+  );
+  $log->info("informing ", $to_publish_inform->email, " about $fulltitle at $starttime");
+  Email::Sender::Simple->send($email, { transport => $transport } )
+    or $log->logdie("can't send email to ", $to_publish_inform->email);
+
+  # update the to_publish_inform record
+  
+}
+
+# commit database
+$mythdb->txn_commit;
+
+# disconnect SMTP
+$transport->disconnect;
+
+# all done
+$log->info('STOP');
+exit(0);
+
+#
+# EOF
