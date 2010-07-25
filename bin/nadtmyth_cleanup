@@ -37,6 +37,9 @@ my $mythdb = $nadtmyth->mythdb;
 my $recorded_rs = $mythdb->resultset('Recorded');
 my $converted_rs = $mythdb->resultset('NadtmythConverted');
 my $linked_rs = $mythdb->resultset('NadtmythLinked');
+my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
+my $to_publish_dest_rs = $mythdb->resultset('NadtmythToPublishDest');
+my $to_publish_inform_rs = $mythdb->resultset('NadtmythToPublishInform');
 
 # build convert dirs
 my @convertdirs;
@@ -105,6 +108,51 @@ while( ! $done ) {
   for my $todel( @todel ) {
     $log->info("deleting linked record $todel: converted has been deleted");
     $linked_rs->find( $todel )->delete;
+    $touched++;
+  }
+  
+  # remove to_publish records that have no convert record
+  $log->info("looking for to_publish records that have no convert record");
+  my $to_publish_it = $to_publish_rs->search;
+  undef @todel;
+  while( my $to_publish = $to_publish_it->next ) {
+    unless( $to_publish->converted ) {
+      push @todel, $to_publish->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("removing to_publish record $todel: no matching convert record");
+    $to_publish_rs->find( $todel )->delete;
+    $touched++;
+  }
+  
+  # remove to_publish_dest records that have no to_publish record
+  $log->info("looking for to_publish_dest records that have no to_publish record");
+  my $to_publish_dest_it = $to_publish_dest_rs->search;
+  undef @todel;
+  while( my $to_publish_dest = $to_publish_dest_it->next ) {
+    unless( $to_publish_dest->to_publish ) {
+      push @todel, $to_publish_dest->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("removing to_publish_dest record $todel: no matching to_publish record");
+    $to_publish_dest_rs->find( $todel )->delete;
+    $touched++;
+  }
+  
+  # remove to_publish_inform records that have no to_publish_dest record
+  $log->info("looking for to_publish_inform records that have no to_publish_dest record");
+  my $to_publish_inform_it = $to_publish_inform_rs->search;
+  undef @todel;
+  while( my $to_publish_inform = $to_publish_inform_it->next ) {
+    unless( $to_publish_inform->to_publish_dest ) {
+      push @todel, $to_publish_inform->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("removing to_publish_inform record $todel: no matching to_publish_dest record");
+    $to_publish_inform_rs->find( $todel )->delete;
     $touched++;
   }
 
@@ -181,7 +229,12 @@ while( ! $done ) {
   }
 
   # we are only done if nothing has been touched
-  $done = 1 if( 0 == $touched );
+  if( $touched ) {
+    $log->info("made $touched changes");
+  }
+  else {
+    $done = 1;
+  }
 
 }  
 

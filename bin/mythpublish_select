@@ -47,7 +47,8 @@ while( my $convert = $converts->next ) {
   my $rs = $mythdb->resultset('Recorded');
   my $recorded_rec = $rs->single( { chanid => $convert->chanid, starttime => $convert->starttime } );
   unless( $recorded_rec ) {
-    $log->logdie("can't find source program for converted id ", $convert->id);
+    $log->warn("can't find source program for converted id ", $convert->id);
+    next;
   }
   my $fulltitle;
   if( $recorded_rec->subtitle ) {

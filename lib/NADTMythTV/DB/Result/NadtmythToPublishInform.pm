@@ -78,7 +78,7 @@ __PACKAGE__->add_unique_constraint(
 # Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/EO5xptonxKb4aPvnjoRZw
 
-__PACKAGE__->belongs_to( to_publish => 'NADTMythTV::DB::Result::NadtmythToPublishDest', 'to_publish_dest_id' );
+__PACKAGE__->belongs_to( to_publish_dest => 'NADTMythTV::DB::Result::NadtmythToPublishDest', 'to_publish_dest_id' );
 
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;

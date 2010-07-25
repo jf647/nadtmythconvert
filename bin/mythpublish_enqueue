@@ -1,0 +1,133 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use YAML;
+
+# parse args
+my %opts = (
+  replace => 0,
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'chanid=i',
+  'starttime=s',
+  'basename=s',
+  'format=s',
+  'dest=s',
+  'email=s',
+  'verbose!',
+  'debug!',
+);
+my %search_param;
+unless( exists $opts{format} ) {
+  die "--format is required";
+}
+unless( exists $opts{email} ) {
+  die "--email is required";
+}
+if( exists $opts{basename} ) {
+  if( exists $opts{chanid} || exists $opts{starttime} ) {
+    die "if --basename is used, --chanid/--starttime must not be used";
+  }
+  %search_param = ( basename => $opts{basename} );
+}
+elsif( exists $opts{chanid} || exists $opts{starttime} ) {
+  unless( exists $opts{chanid} && exists $opts{starttime} ) {
+    die "if one of --chanid/--starttime is used, both are required";
+  }
+  if( exists $opts{basename} ) {
+    die "if --chanid/--starttime are used, --basename must not be used";
+  }
+  %search_param = ( chanid => $opts{chanid}, starttime => $opts{starttime} );
+}
+else {
+  die "--basename or --chanid/--starttime required";
+}
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+
+# find the original record
+my $orig_rs = $mythdb->resultset('Recorded');
+my $orig = $orig_rs->single( \%search_param )
+  or $log->logdie("can't find original program based on search params");
+
+# build the title
+my $fulltitle;
+if( $orig->subtitle ) {
+  $fulltitle = $orig->title . ' - ' . $orig->subtitle;
+}
+else {
+  $fulltitle = $orig->title;
+}
+my $starttime = $orig->starttime;
+
+# find the associated convert record
+my $convert_rs = $orig->search_related( 'converted', { destformat => $opts{format} } )
+  or $log->logdie("no converted records for original program with format $opts{format}");
+my $convert = $convert_rs->first;
+
+# create to_publish if needed
+my $to_publish;
+if( $to_publish = $convert->to_publish ) {
+  $log->info("found existing to_publish record for $fulltitle at $starttime");
+}
+else {
+  $to_publish = $convert->create_related( 'to_publish', {} );
+  $log->info("created to_publish record for $fulltitle at $starttime");
+}
+
+# create to_publish_dest if needed
+my $to_publish_dest;
+my $dests = $to_publish->search_related( 'to_publish_dest', { dest => $opts{dest} } );
+if( $dests->count ) {
+  $to_publish_dest = $dests->first;
+  $log->info("found existing to_publish_dest record for $opts{dest}");
+}
+else {
+  $to_publish_dest = $to_publish->create_related( 'to_publish_dest', { dest => $opts{dest} } );
+  $log->info("adding dest for $opts{dest}");
+}
+
+# create to_publish_inform if needed
+my $to_publish_inform;
+my $informs = $to_publish_dest->search_related( 'to_publish_inform', { email => $opts{email} } );
+if( $informs->count ) {
+  $log->logdie("publish record for $opts{email} already exists");
+}
+else {
+  $to_publish_inform = $to_publish_dest->create_related( 'to_publish_inform', { email => $opts{email} } );
+  $log->info("adding inform for $opts{email}");
+}
+
+# commit database
+$mythdb->txn_commit;
+
+# all done
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

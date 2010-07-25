@@ -51,3 +51,26 @@ CREATE TABLE nadtmyth_to_publish_inform (
   purge_date datetime
 );
 CREATE UNIQUE INDEX nadtmyth_to_publish_inform_idx1 ON nadtmyth_to_publish_inform( to_publish_dest_id, email );
+
+CREATE VIEW nadtmyth_publish_queue
+AS
+SELECT
+  r.title,
+  r.subtitle,
+  r.starttime,
+  p.id,
+  p.complete,
+  d.dest,
+  i.email
+FROM
+  recorded r
+JOIN
+  nadtmyth_converted c ON c.chanid = r.chanid AND c.starttime = r.starttime
+JOIN
+  nadtmyth_to_publish p ON p.converted_id = c.id
+JOIN
+  nadtmyth_to_publish_dest d ON d.to_publish_id = p.id
+JOIN
+  nadtmyth_to_publish_inform i ON i.to_publish_dest_id = d.id
+WHERE
+  i.email IS NOT NULL;
