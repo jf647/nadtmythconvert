@@ -59,21 +59,21 @@ sub publish
   
   # check if the file exists
   my $destname = "$fulltitle - $starttime";
-  if( $bucket->exists( key => $destname ) ) {
-    $log->logdie("key '$key' already exists in bucket");
-  }
-
-  # put the file in the bucket
-  my $convertpath = file( $convert->destdir, $convert->destfile );
   my $s3obj = $bucket->object(
     key => $destname,
     acl_short => 'public-read',
     content_type => 'application/octet-stream',
   );
+  if( $s3obj->exists ) {
+    $log->logdie("key '$destname' already exists in bucket");
+  }
+
+  # put the file in the bucket
+  my $convertpath = file( $convert->destdir, $convert->destfile );
   $s3obj->put_filename( $convertpath );
   
   # insert the s3 url into the database
-  $dest->create_related( s3 => { url => $s3obj->uri } );
+  $dest->create_related( s3 => { objkey => $destname, url => $s3obj->uri } );
 
 }
 

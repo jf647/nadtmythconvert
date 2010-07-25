@@ -10,7 +10,7 @@ use lib "$FindBin::Bin/../lib";
 use Getopt::Long;
 use NADTMythTV;
 use NADTMythTV::Util;
-use NADTMythTV::Publish::S3;
+use NADTMythTV::Publish::S3Cmd;
 use YAML;
 
 # parse args
@@ -58,7 +58,8 @@ while( my $to_publish = $to_publish_rs->next ) {
     # update published, publish_date and purge_date
     $dest->published(1);
     $dest->publish_date( \'NOW()' );
-    $dest->purge_date( \"NOW() + INTERVAL " . $dest->purge_days . " DAY" );
+    my $purge_date = "NOW() + INTERVAL " . $dest->purge_days . " DAY";
+    $dest->purge_date( \$purge_date );
     $dest->update;
   }
 }
