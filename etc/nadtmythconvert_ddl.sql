@@ -7,7 +7,8 @@ CREATE TABLE nadtmyth_converted (
   destformat varchar(10) NOT NULL,
   destdir varchar(255) NOT NULL,
   destfile varchar(255) NOT NULL,
-  convertdate datetime NOT NULL
+  convertdate datetime NOT NULL,
+  destsize int not null default 0
 );
 CREATE UNIQUE INDEX nadtmyth_idx1 ON nadtmyth_converted ( chanid, starttime, destformat );
 

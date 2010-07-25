@@ -164,6 +164,7 @@ sub renametofinal
     destformat => $self->format,
     destdir => $final->dir,
     destfile => $final->basename,
+    destsize => file( $final->dir, $final->basename )->stat->size,
     convertdate => \'NOW()',
   } );
 

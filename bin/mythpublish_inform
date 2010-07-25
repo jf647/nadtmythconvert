@@ -8,14 +8,16 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 
 use Email::Sender::Simple;
-use Email::Sender;
-use Email::Sender::Create;
+use Email::Simple;
+use Email::Simple::Creator;
 use Email::Sender::Transport::SMTP::Persistent;
 use Getopt::Long;
-use NADTMythTV;
-use NADTMythTV::Util;
+use Number::Bytes::Human 'format_bytes';
 use Template;
 use YAML;
+
+use NADTMythTV;
+use NADTMythTV::Util;
 
 # parse args
 my %opts = (
@@ -47,7 +49,7 @@ my $mythdb = $nadtmyth->mythdb;
 my $tt = Template->new( ABSOLUTE => 1 );
 
 # set up email sender
-my $transport = Email::Sender::Transport::SMTP->new( {
+my $transport = Email::Sender::Transport::SMTP::Persistent->new( {
   host => $cfg->{publish}->{inform}->{smtp}->{server},
   port => $cfg->{publish}->{inform}->{smtp}->{port},
   ssl => $cfg->{publish}->{inform}->{smtp}->{ssl},
@@ -57,7 +59,10 @@ my $transport = Email::Sender::Transport::SMTP->new( {
 
 # find to_publish_inform records where informed is false
 my $to_publish_inform_rs = $mythdb->resultset('NadtmythToPublishInform');
-my $to_publish_inform_it = $to_publish_inform_rs->search( { informed => 0 } );
+my $to_publish_inform_it = $to_publish_inform_rs->search(
+  { informed => 0, 'to_publish_dest.published' => 1 },
+  { join => 'to_publish_dest' },
+);
 while( my $to_publish_inform = $to_publish_inform_it->next ) {
 
   # get related objects
@@ -68,10 +73,16 @@ while( my $to_publish_inform = $to_publish_inform_it->next ) {
   my $s3 = $to_publish_dest->s3;
 
   # build subject and body contents
+  my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
+  my $starttime = $orig->starttime;
   my $data = {
-    fulltitme =>  NADTMythTV::Util->fulltitle( $orig ),
-    starttime => $orig->starttime,
+    fulltitle => $fulltitle,
+    description => $orig->description,
+    starttime => $starttime,
     url => $s3->url,
+    purge_date => $to_publish_dest->purge_date,
+    size => $convert->destsize,
+    sizeh => format_bytes( $convert->destsize ),
   };
   my $subject;
   my $body;
@@ -92,6 +103,8 @@ while( my $to_publish_inform = $to_publish_inform_it->next ) {
     or $log->logdie("can't send email to ", $to_publish_inform->email);
 
   # update the to_publish_inform record
+  $to_publish_inform->informed(1);
+  $to_publish_inform->update;
   
 }
 

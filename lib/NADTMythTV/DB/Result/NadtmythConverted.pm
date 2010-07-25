@@ -70,6 +70,12 @@ __PACKAGE__->table("nadtmyth_converted");
   data_type: 'datetime'
   is_nullable: 0
 
+=head2 destsize
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -91,13 +97,15 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 255 },
   "convertdate",
   { data_type => "datetime", is_nullable => 0 },
+  "destsize",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("nadtmyth_idx1", ["chanid", "starttime", "destformat"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:u73/WAjasTauKC391ao7gg
+# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-25 17:50:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:zlsWaTis9MtSUUv3YdcneQ
 
 __PACKAGE__->belongs_to( recorded => 'NADTMythTV::DB::Result::Recorded', {
   'foreign.chanid' => 'self.chanid',

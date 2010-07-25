@@ -1,0 +1,10 @@
+New Upload
+----------
+
+Title          : [% fulltitle %]
+AirDate        : [% starttime %]
+Size           : [% sizeh %]
+Available Until: [% purge_date %]
+URL            : [% url %]
+
+[% description %]

@@ -87,8 +87,8 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("nadtmyth_to_publish_dest_idx1", ["to_publish_id", "dest"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-25 11:53:36
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eM9j9sqT83bCOY5yKZ4UzA
+# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-25 17:50:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vuVgX4MicTbcSOF1LzY0CQ
 
 __PACKAGE__->belongs_to( to_publish => 'NADTMythTV::DB::Result::NadtmythToPublish', 'to_publish_id' );
 __PACKAGE__->has_many( to_publish_inform => 'NADTMythTV::DB::Result::NadtmythToPublishInform', 'to_publish_dest_id' );

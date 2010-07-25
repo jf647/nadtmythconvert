@@ -23,6 +23,8 @@ install -o mythtv -g mythtv -m 775 bin/rsync-transcoded-to-external-hd /home/myt
 install -o root -g root -m 775 etc/nadtmythconvert.crondaily /etc/cron.daily/nadtmythconvert
 install -o root -g root -m 644 etc/mythpublish.cron /etc/cron.d/mythpublish
 install -o mythtv -g mythtv -m 640 etc/nadtmythconvert.yaml /home/mythtv/etc
+install -o mythtv -g mythtv -m 640 etc/mythpublish_inform_subject.template /home/mythtv/etc
+install -o mythtv -g mythtv -m 640 etc/mythpublish_inform_body.template /home/mythtv/etc
 pax -r -w lib /home/mythtv
 
 find /home/mythtv/lib -name "*.pm" | xargs chown mythtv:mythtv
