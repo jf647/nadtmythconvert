@@ -49,7 +49,8 @@ CREATE TABLE nadtmyth_publish_s3 (
   id int not null auto_increment primary key,
   to_publish_dest_id int not null references nadtmyth_to_publish_dest(id),
   objkey VARCHAR(250),
-  url VARCHAR(250)
+  url VARCHAR(250),
+  public_url VARCHAR(250)
 );
 CREATE UNIQUE INDEX nadtmyth_publish_s3_idx1 ON nadtmyth_publish_s3( to_publish_dest_id );
 

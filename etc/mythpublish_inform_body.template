@@ -2,6 +2,6 @@ Title          : [% fulltitle %]
 AirDate        : [% starttime %]
 Size           : [% sizeh %]
 Available Until: [% purge_date %]
-URL            : [% url %]
+URL            : [% public_url %]
 
 [% description %]

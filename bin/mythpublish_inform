@@ -83,6 +83,7 @@ while( my $to_publish_inform = $to_publish_inform_it->next ) {
     description => $orig->description,
     starttime => $starttime,
     url => $s3->url,
+    public_url => $s3->public_url,
     purge_date => $to_publish_dest->purge_date,
     size => $convert->destsize,
     sizeh => format_bytes( $convert->destsize ),
