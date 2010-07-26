@@ -50,6 +50,28 @@ sub publish
 
 }
 
+sub purge
+{
+
+  my $self = shift;
+  my $dest = shift;
+  
+  my $s3 = $dest->s3;
+  
+  my $log = NADTMythTV->log;
+  my $cfg = NADTMythTV->cfg;
+  
+  # use s3cmd to remove the file
+  my $s3url = $s3->url;
+  my $command = $cfg->{publish}->{dests}->{$dest->dest}->{delcmd};
+  $command =~ s/%%URL%%/$s3url/;
+  $log->info("removing $s3url");
+#  if( system("$command") ) {
+#    $log->logdie("can't run $command");
+#  }
+
+}
+
 # keep require happy
 1;
 

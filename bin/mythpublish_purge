@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use NADTMythTV::Util;
+use NADTMythTV::Publish::S3Cmd;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'verbose!',
+  'debug!',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+
+# get a lock
+NADTMythTV::Util->lock;
+
+# find to_publish_dest records that are published, past their purge date and fully informed
+my $to_publish_dest_rs = $mythdb->resultset('NadtmythToPublishDest');
+my $to_publish_dest_it = $to_publish_dest_rs->search(
+  { published => 1, all_informed => 1, purge_date => \'< NOW()' },
+);
+my @todel;
+while( my $to_publish_dest = $to_publish_dest_it->next ) {
+  my $to_publish = $to_publish_dest->to_publish;
+  my $convert = $to_publish->converted;
+  my $orig = $convert->recorded;
+  my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
+  my $starttime = $orig->starttime;
+  $log->info("purging $fulltitle at $starttime");
+  # instantiate a processor
+  my $processor = $cfg->{publish}->{dests}->{$to_publish_dest->dest}->{type}->new;
+  # call the purge method
+  $processor->purge( $to_publish_dest );
+  push @todel, $to_publish_dest->id;
+}
+for my $todel( @todel ) {
+  $log->info("deleting to_publish_dest record $todel");
+#  $to_publish_dest_rs->find( $todel )->delete;
+}
+
+# commit the transaction
+$mythdb->txn_commit;
+
+# all done
+$log->info('STOP');
+NADTMythTV::Util->unlock;
+exit(0);
+
+#
+# EOF

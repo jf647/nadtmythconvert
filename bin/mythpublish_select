@@ -44,8 +44,8 @@ NADTMythTV::Util->lock;
 # get list of converted programs where there is no to_publish record
 my $rs = $mythdb->resultset('NadtmythConverted');
 my $converts = $rs->search(
-  { 'to_publish.complete' => [ 0, undef ] },
-  { join => 'to_publish' }
+  { 'to_publish.complete' => [ 0, undef ], 'recorded.autoexpire' => { '!=' => 9999 } },
+  { join => [ 'to_publish', 'recorded' ] }
 );
 while( my $convert = $converts->next ) {
   my $rs = $mythdb->resultset('Recorded');

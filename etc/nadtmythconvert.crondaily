@@ -3,7 +3,7 @@
 # $Id$
 #
 
-#sudo -u mythtv -i /home/mythtv/bin/mythpublish_purge
+sudo -u mythtv -i /home/mythtv/bin/mythpublish_purge
 sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanup
 
 #
