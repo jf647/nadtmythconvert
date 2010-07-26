@@ -7,10 +7,12 @@ package NADTMythTV::Util;
 use strict;
 use warnings;
 
-use NADTMythTV;
 use File::Temp      qw|tempfile tempdir|;
 use IPC::Run        qw|run|;
+use LockFile::Simple;
 use Path::Class     qw|dir file|;
+
+use NADTMythTV;
 
 sub getfileinfo
 {
@@ -244,6 +246,39 @@ sub recordingpath
     file => file( $recording->basename ),
     path => file( $storagegroup->dirname, $recording->basename ),
   }
+
+}
+
+my $lm;
+sub lock
+{
+
+  my $class = shift;
+  
+  my $cfg = NADTMythTV->cfg;
+  my $log = NADTMythTV->log;
+  
+  unless( $lm ) {
+    my @lock_options = map { ( -"$_" => $cfg->{lockfiles}->{$_} ); } keys %{ $cfg->{lockfiles} };
+    push @lock_options, -efunc => sub { $log->logdie($_[0]) };
+    push @lock_options, -wfunc => sub { $log->warn($_[0]) };
+    $lm = LockFile::Simple->make(@lock_options);
+  }
+      
+  my $lockfile = $lm->lockfile($0);
+  $log->info("attempting to lock $lockfile");
+  unless( $lm->lock($0) ) {
+    $log->logdie("can't lock $0");
+  }
+  $log->info("locked $lockfile");
+
+}
+
+sub unlock
+{
+
+  my $class = shift;
+  $lm->unlock($0);
 
 }
 

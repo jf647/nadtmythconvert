@@ -9,6 +9,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Getopt::Long;
 use NADTMythTV;
+use NADTMythTV::Util;
 use YAML;
 
 # parse args
@@ -66,6 +67,9 @@ my $nadtmyth = NADTMythTV->new;
 # set up database
 my $mythdb = $nadtmyth->mythdb;
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # load the appropriate workflow class
 my $wfclass = "NADTMythTV::Workflow::$opts{mode}";
 eval "require $wfclass";
@@ -90,6 +94,7 @@ $mythdb->txn_commit;
 
 # all done
 $log->info('STOP');
+NADTMythTV::Util->unlock;
 exit(0);
 
 #

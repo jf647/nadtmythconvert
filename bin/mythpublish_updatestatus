@@ -38,6 +38,9 @@ my $nadtmyth = NADTMythTV->new;
 # set up database
 my $mythdb = $nadtmyth->mythdb;
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # find incomplete to_publish records
 my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
 my $to_publish_it = $to_publish_rs->search( { complete => 0 } );
@@ -79,6 +82,7 @@ $mythdb->txn_commit;
 
 # all done
 $log->info('STOP');
+NADTMythTV::Util->unlock;
 exit(0);
 
 #

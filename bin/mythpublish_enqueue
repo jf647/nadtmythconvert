@@ -72,6 +72,9 @@ my $nadtmyth = NADTMythTV->new;
 # set up database
 my $mythdb = $nadtmyth->mythdb;
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # find the original record
 my $orig_rs = $mythdb->resultset('Recorded');
 my $orig = $orig_rs->single( \%search_param )
@@ -124,6 +127,7 @@ $mythdb->txn_commit;
 
 # all done
 $log->info('STOP');
+NADTMythTV::Util->unlock;
 exit(0);
 
 #

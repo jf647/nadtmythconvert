@@ -57,6 +57,9 @@ my $transport = Email::Sender::Transport::SMTP::Persistent->new( {
   sasl_password => $cfg->{publish}->{inform}->{smtp}->{pass},
 } ) or $log->logdie("can't set up SMTP transport");
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # find to_publish_inform records where informed is false
 my $to_publish_inform_rs = $mythdb->resultset('NadtmythToPublishInform');
 my $to_publish_inform_it = $to_publish_inform_rs->search(
@@ -116,6 +119,7 @@ $transport->disconnect;
 
 # all done
 $log->info('STOP');
+NADTMythTV::Util->unlock;
 exit(0);
 
 #

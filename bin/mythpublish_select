@@ -38,6 +38,9 @@ my $nadtmyth = NADTMythTV->new;
 # set up database
 my $mythdb = $nadtmyth->mythdb;
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # get list of converted programs where there is no to_publish record
 my $rs = $mythdb->resultset('NadtmythConverted');
 my $converts = $rs->search(
@@ -104,6 +107,7 @@ $mythdb->txn_commit;
 
 # all done
 $log->info('STOP');
+NADTMythTV::Util->unlock;
 exit(0);
 
 #

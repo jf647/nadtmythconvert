@@ -39,6 +39,9 @@ my $nadtmyth = NADTMythTV->new;
 # set up database
 my $mythdb = $nadtmyth->mythdb_ac;
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # find to_publish records where complete is false
 my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
 my $to_publish_it = $to_publish_rs->search( { all_published => 0 } );
@@ -66,6 +69,7 @@ while( my $to_publish = $to_publish_it->next ) {
 
 # all done
 $log->info('STOP');
+NADTMythTV::Util->unlock;
 exit(0);
 
 #

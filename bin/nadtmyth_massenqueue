@@ -9,6 +9,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Getopt::Long;
 use NADTMythTV;
+use NADTMythTV::Util;
 use YAML;
 
 # parse args
@@ -43,6 +44,9 @@ my $nadtmyth = NADTMythTV->new;
 # set up database
 my $mythdb = $nadtmyth->mythdb;
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # search for programs
 my $recorded_rs = $mythdb->resultset('Recorded');
 my $jobqueue_rs = $mythdb->resultset('Jobqueue');
@@ -64,6 +68,7 @@ while( my $prog = $progs->next ) {
 }
 
 # all done
+NADTMythTV::Util->unlock;
 exit(0);
 
 #

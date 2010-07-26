@@ -22,8 +22,6 @@ echo "synchronizing h264"
 rsync -rvL --delete h264_links/ /mnt/transcoded/transcoded/h264
 echo "synchronizing mp3"
 rsync -rvL --delete mp3_links/ /mnt/transcoded/transcoded/mp3
-echo "synchronizing iphone"
-rsync -rvL --delete iphone_links/ /mnt/transcoded/transcoded/iphone
 echo "dismounting external hd"
 umount /dev/sdc1
 

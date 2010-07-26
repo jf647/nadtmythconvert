@@ -57,6 +57,9 @@ for my $outputtype( keys %{ $cfg->{output} } ) {
   }
 }
 
+# get a lock
+NADTMythTV::Util->lock;
+
 # loop until we pass through without doing anything
 my $done = 0;
 my $touched;
@@ -65,12 +68,13 @@ while( ! $done ) {
   
   $touched = 0;
 
-  # remove converted records that have no recorded record
+  # remove converted records that have no recorded or to_publish record
   $log->info("looking for converted records without originals");
   my $converted = $converted_rs->search;
   undef @todel;
   while( my $convert = $converted->next ) {
-    unless( $convert->recorded ) {
+    if( ! $convert->recorded && ! $convert->to_publish ) {
+      $DB::single = 1;
       push @todel, $convert->id;
       next;
     }
@@ -86,7 +90,8 @@ while( ! $done ) {
   $converted = $converted_rs->search;
   undef @todel;
   while( my $convert = $converted->next ) {
-    if( 9999 == $convert->recorded->autoexpire ) {
+    if( 9999 == $convert->recorded->autoexpire && ! $convert->to_publish ) {
+      $DB::single = 1;
       push @todel, $convert->id;
       next;
     }
@@ -259,6 +264,7 @@ $mythdb->txn_commit;
 
 # all done
 $log->info('STOP');
+NADTMythTV::Util->unlock;
 exit(0);
 
 #
