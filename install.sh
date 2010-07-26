@@ -9,6 +9,7 @@ fi
 install -o mythtv -g mythtv -m 775 -d /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 -d /home/mythtv/lib
 install -o mythtv -g mythtv -m 775 -d /home/mythtv/etc
+install -o mythtv -g mythtv -m 770 -d /var/run/mythtv
 
 install -o mythtv -g mythtv -m 775 bin/nadtmythconvert /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/mythpublish_enqueue /home/mythtv/bin
