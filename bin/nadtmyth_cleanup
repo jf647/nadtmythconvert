@@ -58,7 +58,7 @@ for my $outputtype( keys %{ $cfg->{output} } ) {
 }
 
 # get a lock
-NADTMythTV::Util->lock;
+NADTMythTV::Util->lock('cleanup');
 
 # loop until we pass through without doing anything
 my $done = 0;
@@ -263,8 +263,8 @@ while( ! $done ) {
 $mythdb->txn_commit;
 
 # all done
-$log->info('STOP');
 NADTMythTV::Util->unlock;
+$log->info('STOP');
 exit(0);
 
 #

@@ -40,6 +40,7 @@ sub publish
   $command =~ s/%%FILE%%/$convertpath/;
   $command =~ s/%%DEST%%/$s3dest/;
   $log->info("uploading $convertpath as $s3dest");
+  $log->debug("running $command");
   if( system("$command") ) {
     $log->logdie("can't run $command");
   }
@@ -66,9 +67,10 @@ sub purge
   my $command = $cfg->{publish}->{dests}->{$dest->dest}->{delcmd};
   $command =~ s/%%URL%%/$s3url/;
   $log->info("removing $s3url");
-#  if( system("$command") ) {
-#    $log->logdie("can't run $command");
-#  }
+  $log->debug("running $command");
+  if( system("$command") ) {
+    $log->logdie("can't run $command");
+  }
 
 }
 

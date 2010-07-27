@@ -40,7 +40,7 @@ my $nadtmyth = NADTMythTV->new;
 my $mythdb = $nadtmyth->mythdb;
 
 # get a lock
-NADTMythTV::Util->lock;
+NADTMythTV::Util->lock('publish');
 
 # find to_publish_dest records that are published, past their purge date and fully informed
 my $to_publish_dest_rs = $mythdb->resultset('NadtmythToPublishDest');
@@ -63,15 +63,15 @@ while( my $to_publish_dest = $to_publish_dest_it->next ) {
 }
 for my $todel( @todel ) {
   $log->info("deleting to_publish_dest record $todel");
-#  $to_publish_dest_rs->find( $todel )->delete;
+  $to_publish_dest_rs->find( $todel )->delete;
 }
 
 # commit the transaction
 $mythdb->txn_commit;
 
 # all done
-$log->info('STOP');
 NADTMythTV::Util->unlock;
+$log->info('STOP');
 exit(0);
 
 #

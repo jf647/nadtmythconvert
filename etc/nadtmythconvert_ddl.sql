@@ -84,3 +84,36 @@ JOIN
   nadtmyth_to_publish_inform i ON i.to_publish_dest_id = d.id
 WHERE
   i.email IS NOT NULL;
+
+CREATE VIEW nadtmyth_publish
+AS
+SELECT
+  r.title title,
+  r.subtitle subtitle,
+  r.starttime starttime,
+  p.id publish_id,
+  d.id dest_id,
+  s.id s3_id,
+  i.id inform_id,
+  p.all_published all_published,
+  p.complete complete,
+  d.all_informed all_informed,
+  d.dest,
+  d.published published,
+  d.publish_date publish_date,
+  d.purge_date purge_date,
+  s.public_url url,
+  i.email email,
+  i.informed informed
+FROM
+  recorded r
+JOIN
+  nadtmyth_converted c ON c.chanid = r.chanid AND c.starttime = r.starttime
+JOIN
+  nadtmyth_to_publish p ON p.converted_id = c.id
+JOIN
+  nadtmyth_to_publish_dest d ON d.to_publish_id = p.id
+JOIN
+  nadtmyth_publish_s3 s ON s.to_publish_dest_id = d.id
+JOIN
+  nadtmyth_to_publish_inform i ON i.to_publish_dest_id = d.id;

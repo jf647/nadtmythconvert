@@ -81,8 +81,8 @@ while( my $to_publish = $to_publish_it->next ) {
 $mythdb->txn_commit;
 
 # all done
-$log->info('STOP');
 NADTMythTV::Util->unlock;
+$log->info('STOP');
 exit(0);
 
 #

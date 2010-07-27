@@ -120,8 +120,8 @@ $mythdb->txn_commit;
 $transport->disconnect;
 
 # all done
-$log->info('STOP');
 NADTMythTV::Util->unlock;
+$log->info('STOP');
 exit(0);
 
 #

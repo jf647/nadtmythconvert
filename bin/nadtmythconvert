@@ -68,7 +68,7 @@ my $nadtmyth = NADTMythTV->new;
 my $mythdb = $nadtmyth->mythdb;
 
 # get a lock
-NADTMythTV::Util->lock;
+NADTMythTV::Util->lock('convert');
 
 # load the appropriate workflow class
 my $wfclass = "NADTMythTV::Workflow::$opts{mode}";

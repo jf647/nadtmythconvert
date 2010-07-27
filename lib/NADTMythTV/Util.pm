@@ -250,27 +250,30 @@ sub recordingpath
 }
 
 my $lm;
+my $lmfile;
 sub lock
 {
 
   my $class = shift;
+  my $file = shift || 'nadtmyth';
   
-  my $cfg = NADTMythTV->cfg;
   my $log = NADTMythTV->log;
   
   unless( $lm ) {
+    my $cfg = NADTMythTV->cfg;
     my @lock_options = map { ( -"$_" => $cfg->{lockfiles}->{$_} ); } keys %{ $cfg->{lockfiles} };
     push @lock_options, -efunc => sub { $log->logdie($_[0]) };
     push @lock_options, -wfunc => sub { $log->warn($_[0]) };
     $lm = LockFile::Simple->make(@lock_options);
   }
       
-  my $lockfile = $lm->lockfile($0);
+  my $lockfile = $lm->lockfile($file);
   $log->info("attempting to lock $lockfile");
-  unless( $lm->lock($0) ) {
-    $log->logdie("can't lock $0");
+  unless( $lm->lock($file) ) {
+    $log->logdie("can't lock $file");
   }
   $log->info("locked $lockfile");
+  $lmfile = $file;
 
 }
 
@@ -278,7 +281,13 @@ sub unlock
 {
 
   my $class = shift;
-  $lm->unlock($0);
+  my $file = shift || $lmfile || 'nadtmyth';
+  
+  my $log = NADTMythTV->log;
+  
+  my $lockfile = $lm->lockfile($file);
+  $lm->unlock($file);
+  $log->info("unlocked $lockfile");
 
 }
 
