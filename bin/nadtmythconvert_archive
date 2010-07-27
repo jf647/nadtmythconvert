@@ -64,7 +64,7 @@ $log->info('START');
 my $nadtmyth = NADTMythTV->new;
 
 # set up database
-my $mythdb = $nadtmyth->mythdb_ac;
+my $mythdb = $nadtmyth->mythdb;
 my $orig_rs = $mythdb->resultset('Recorded');
 my $convert_rs = $mythdb->resultset('NadtmythConverted');
 
@@ -78,6 +78,7 @@ my $orig = $orig_rs->single( \%search_param )
 # build the title
 my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
 my $starttime = $orig->starttime;
+$log->info( "archiving $fulltitle at $starttime");
 
 # loop over convert records
 my @todel;
@@ -88,7 +89,7 @@ while( my $convert = $converts->next ) {
   while( my $link = $links->next ) {
     my $src = file( $convert->destdir, $convert->destfile );
     my $dst = file( $opts{directory}, $link->linkfile );
-    unless( copy( $src, $dst ) ) {
+    unless( copy( $src->stringify, $dst->stringify ) ) {
       $log->logdie("can't copy $src to $dst: $!");
     }
     $log->info("copied $src to $dst");
@@ -99,6 +100,15 @@ for my $todel( @todel ) {
   $convert_rs->find( $todel )->delete;
   $log->info("removing convert record $todel: archived");
 }
+
+# delete original
+$orig->recgroup( 'Deleted' );
+$orig->lastmodified( \'NOW()' );
+$orig->autoexpire( 9999 );
+$orig->update;
+
+# commit the db transaction
+$mythdb->txn_commit;
 
 # all done
 NADTMythTV::Util->unlock;
