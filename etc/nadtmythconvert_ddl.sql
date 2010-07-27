@@ -86,7 +86,8 @@ AS
 SELECT
   r.title title,
   r.subtitle subtitle,
-  r.starttime starttime,  
+  r.starttime starttime,
+  c.destsize size,
   l.id linked_id,
   CONCAT_WS('/', l.linkdir, l.linkfile) link,
   p.id publish_id,
