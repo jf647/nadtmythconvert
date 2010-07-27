@@ -1,0 +1,109 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use File::Copy;
+use Getopt::Long;
+use Path::Class qw|dir file|;
+use NADTMythTV;
+use NADTMythTV::Util;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'chanid=i',
+  'starttime=s',
+  'basename=s',
+  'directory=s',
+  'verbose!',
+  'debug!',
+);
+my %search_param;
+unless( exists $opts{directory} ) {
+  die "--directory is required";
+}
+if( exists $opts{basename} ) {
+  if( exists $opts{chanid} || exists $opts{starttime} ) {
+    die "if --basename is used, --chanid/--starttime must not be used";
+  }
+  %search_param = ( basename => $opts{basename} );
+}
+elsif( exists $opts{chanid} || exists $opts{starttime} ) {
+  unless( exists $opts{chanid} && exists $opts{starttime} ) {
+    die "if one of --chanid/--starttime is used, both are required";
+  }
+  if( exists $opts{basename} ) {
+    die "if --chanid/--starttime are used, --basename must not be used";
+  }
+  %search_param = ( chanid => $opts{chanid}, starttime => $opts{starttime} );
+}
+else {
+  die "--basename or --chanid/--starttime required";
+}
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb_ac;
+my $orig_rs = $mythdb->resultset('Recorded');
+my $convert_rs = $mythdb->resultset('NadtmythConverted');
+
+# get a lock
+NADTMythTV::Util->lock;
+
+# find the original record
+my $orig = $orig_rs->single( \%search_param )
+  or $log->logdie("can't find original program based on search params");
+
+# build the title
+my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
+my $starttime = $orig->starttime;
+
+# loop over convert records
+my @todel;
+my $converts = $orig->search_related( 'converted' );
+while( my $convert = $converts->next ) {
+  # iterate over links
+  my $links = $convert->linked;
+  while( my $link = $links->next ) {
+    my $src = file( $convert->destdir, $convert->destfile );
+    my $dst = file( $opts{directory}, $link->linkfile );
+    unless( copy( $src, $dst ) ) {
+      $log->logdie("can't copy $src to $dst: $!");
+    }
+    $log->info("copied $src to $dst");
+  }
+  push @todel, $convert->id;
+}
+for my $todel( @todel ) {
+  $convert_rs->find( $todel )->delete;
+  $log->info("removing convert record $todel: archived");
+}
+
+# all done
+NADTMythTV::Util->unlock;
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

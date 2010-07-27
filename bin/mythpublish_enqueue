@@ -14,7 +14,6 @@ use YAML;
 
 # parse args
 my %opts = (
-  replace => 0,
   verbose => 0,
   debug => 0,
   days => 7,
@@ -85,8 +84,10 @@ my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
 my $starttime = $orig->starttime;
 
 # find the associated convert record
-my $convert_rs = $orig->search_related( 'converted', { destformat => $opts{format} } )
-  or $log->logdie("no converted records for original program with format $opts{format}");
+my $convert_rs = $orig->search_related( 'converted', { destformat => $opts{format} } );
+unless( $convert_rs->count ) {
+  $log->logdie("no converted records for original program with format $opts{format}");
+}
 my $convert = $convert_rs->first;
 
 # create to_publish if needed
