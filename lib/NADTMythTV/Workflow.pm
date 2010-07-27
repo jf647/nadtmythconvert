@@ -85,10 +85,10 @@ sub process
   $self->convert;
   $self->statusupdate('completed conversion');
   $log->info("completed conversion");
-  $self->renametofinal;
+  my $convert = $self->renametofinal;
   $self->statusupdate('renamed converted file to final destination');
   $self->statusupdate('created symlinks to original program');
-  $self->makeconvertedlinks;
+  $self->makeconvertedlinks( $convert );
   $self->statusupdate('created links to destination file');
   $self->statusupdate('complete');
 
@@ -156,7 +156,7 @@ sub renametofinal
 
   my $rs = $mythdb->resultset('NadtmythConverted');
 
-  $rs->create( {
+  my $convert = $rs->create( {
     chanid => $self->recording->{dbobj}->chanid,
     starttime => $self->recording->{dbobj}->starttime,
     basename => $self->recording->{dbobj}->basename,
@@ -167,6 +167,8 @@ sub renametofinal
     destsize => file( $final->dir, $final->basename )->stat->size,
     convertdate => \'NOW()',
   } );
+  
+  return $convert;
 
 }
 
@@ -235,12 +237,10 @@ sub makelinks
   my $source = shift;
   my $links = shift;
   my $format = shift;
+  my $convert = shift;
   
   my $log = NADTMythTV->log;
-  my $mythdb = NADTMythTV->mythdb;
 
-  my $rs = $mythdb->resultset('NadtmythLinked');
-  
   for my $link( @$links ) {
     my $ok = 0;
     $log->debug("checking link $link (should point to $source)");
@@ -260,12 +260,7 @@ sub makelinks
         $log->logdie("cannot create symlink from $source to $link: $!");
       }
       $log->info("created symlink $link");
-      $rs->create( {
-        chanid => $self->recording->{dbobj}->chanid,
-        starttime => $self->recording->{dbobj}->starttime,
-        basename => $self->recording->{dbobj}->basename,
-        storagegroup => $self->recording->{dbobj}->storagegroup,
-        linkformat => $format,
+      $convert->create_related( 'linked', {
         linkdir => $link->dir,
         linkfile => $link->basename,
         linkdate => \'NOW()',
@@ -304,12 +299,7 @@ sub checkreplace
           $log->logdie("can't remove file $convertedfile: $!");
         }
         $converted->delete;
-        $rs = $mythdb->resultset('NadtmythLinked');
-        my $links = $rs->search( {
-          chanid => $self->recording->{dbobj}->chanid,
-          starttime => $self->recording->{dbobj}->starttime,
-          linkformat => $self->format,
-        } );
+        my $links = $converted->linked->search;
         while( my $link = $links->next ) {
           my $linkfile = file( $link->linkdir, $link->linkfile );
           $log->info("removing link $linkfile");
@@ -403,6 +393,7 @@ sub makeconvertedlinks
 {
 
   my $self = shift;
+  my $convert = shift;
   
   my $cfg = NADTMythTV->cfg;
 
@@ -412,7 +403,7 @@ sub makeconvertedlinks
     push @links, NADTMythTV::Util->expandmeta( $linkspec, $self->meta );
   }
   
-  $self->makelinks( $self->dest->{path}, \@links, $self->format );
+  $self->makelinks( $self->dest->{path}, \@links, $self->format, $convert );
 
 }
 

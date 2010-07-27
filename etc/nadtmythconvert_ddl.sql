@@ -14,11 +14,7 @@ CREATE UNIQUE INDEX nadtmyth_idx1 ON nadtmyth_converted ( chanid, starttime, des
 
 CREATE TABLE nadtmyth_linked (
   id int not null auto_increment primary key,
-  chanid int(10) NOT NULL,
-  starttime datetime NOT NULL,
-  basename varchar(255) NOT NULL,
-  storagegroup varchar(32) NOT NULL,
-  linkformat varchar(10),
+  converted_id int not null references nadtmyth_converted(id),
   linkdir varchar(255) NOT NULL,
   linkfile varchar(255) NOT NULL,
   linkdate datetime NOT NULL
@@ -90,7 +86,9 @@ AS
 SELECT
   r.title title,
   r.subtitle subtitle,
-  r.starttime starttime,
+  r.starttime starttime,  
+  l.id linked_id,
+  CONCAT_WS('/', l.linkdir, l.linkfile) link,
   p.id publish_id,
   d.id dest_id,
   s.id s3_id,
@@ -109,6 +107,8 @@ FROM
   recorded r
 JOIN
   nadtmyth_converted c ON c.chanid = r.chanid AND c.starttime = r.starttime
+JOIN
+  nadtmyth_linked l ON l.converted_id = c.id
 JOIN
   nadtmyth_to_publish p ON p.converted_id = c.id
 JOIN

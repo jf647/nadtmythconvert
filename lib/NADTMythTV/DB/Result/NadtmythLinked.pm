@@ -25,33 +25,10 @@ __PACKAGE__->table("nadtmyth_linked");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 chanid
+=head2 converted_id
 
   data_type: 'integer'
   is_nullable: 0
-
-=head2 starttime
-
-  data_type: 'datetime'
-  is_nullable: 0
-
-=head2 basename
-
-  data_type: 'varchar'
-  is_nullable: 0
-  size: 255
-
-=head2 storagegroup
-
-  data_type: 'varchar'
-  is_nullable: 0
-  size: 32
-
-=head2 linkformat
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 10
 
 =head2 linkdir
 
@@ -75,16 +52,8 @@ __PACKAGE__->table("nadtmyth_linked");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "chanid",
+  "converted_id",
   { data_type => "integer", is_nullable => 0 },
-  "starttime",
-  { data_type => "datetime", is_nullable => 0 },
-  "basename",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
-  "storagegroup",
-  { data_type => "varchar", is_nullable => 0, size => 32 },
-  "linkformat",
-  { data_type => "varchar", is_nullable => 1, size => 10 },
   "linkdir",
   { data_type => "varchar", is_nullable => 0, size => 255 },
   "linkfile",
@@ -95,14 +64,10 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pGVcfN7TGyt1ec3HTt/plg
+# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-27 11:14:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+71DVeYtCnO8440vCKbcpQ
 
-__PACKAGE__->belongs_to( converted => 'NADTMythTV::DB::Result::NadtmythConverted', {
-  'foreign.chanid' => 'self.chanid',
-  'foreign.starttime' => 'self.starttime',
-  'foreign.destformat' => 'self.linkformat',
-} );
+__PACKAGE__->belongs_to( converted => 'NADTMythTV::DB::Result::NadtmythConverted', 'converted_id' );
 
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;

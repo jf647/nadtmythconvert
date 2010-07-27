@@ -112,11 +112,7 @@ __PACKAGE__->belongs_to( recorded => 'NADTMythTV::DB::Result::Recorded', {
   'foreign.starttime' => 'self.starttime',
 } );
 __PACKAGE__->might_have( to_publish => 'NADTMythTV::DB::Result::NadtmythToPublish', 'converted_id' );
-__PACKAGE__->has_many( linked => 'NADTMythTV::DB::Result::NadtmythLinked', {
-  'foreign.chanid' => 'self.chanid',
-  'foreign.starttime' => 'self.starttime',
-  'foreign.linkformat' => 'self.destformat',
-} );
+__PACKAGE__->has_many( linked => 'NADTMythTV::DB::Result::NadtmythLinked', 'converted_id' );
 
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;

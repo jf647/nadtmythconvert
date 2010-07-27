@@ -74,7 +74,6 @@ while( ! $done ) {
   undef @todel;
   while( my $convert = $converted->next ) {
     if( ! $convert->recorded && ! $convert->to_publish ) {
-      $DB::single = 1;
       push @todel, $convert->id;
       next;
     }
@@ -85,13 +84,12 @@ while( ! $done ) {
     $touched++;
   }
   
-  # remove converted records that are autoexpire deleted
+  # remove converted records that are autoexpire deleted and have no to_publish record
   $log->info("looking for converted records that are autoexpired");
   $converted = $converted_rs->search;
   undef @todel;
   while( my $convert = $converted->next ) {
     if( 9999 == $convert->recorded->autoexpire && ! $convert->to_publish ) {
-      $DB::single = 1;
       push @todel, $convert->id;
       next;
     }
@@ -128,6 +126,21 @@ while( ! $done ) {
   }
   for my $todel( @todel ) {
     $log->info("removing to_publish record $todel: no matching convert record");
+    $to_publish_rs->find( $todel )->delete;
+    $touched++;
+  }
+
+  # remove completed to_publish records without a dest
+  $log->info("looking for completed to_publish records");
+  $to_publish_it = $to_publish_rs->search( { all_published => 1, complete => 1 } );
+  undef @todel;
+  while( my $to_publish = $to_publish_it->next ) {
+    if( 0 == $to_publish->to_publish_dest->count ) {
+      push @todel, $to_publish->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("removing to_publish record $todel: complete");
     $to_publish_rs->find( $todel )->delete;
     $touched++;
   }
