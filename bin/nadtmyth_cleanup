@@ -89,7 +89,7 @@ while( ! $done ) {
   $converted = $converted_rs->search;
   undef @todel;
   while( my $convert = $converted->next ) {
-    if( 9999 == $convert->recorded->autoexpire && ! $convert->to_publish ) {
+    if( 9999 == $convert->recorded->autoexpire && 'Deleted' eq $convert->recorded->recgroup ! $convert->to_publish ) {
       push @todel, $convert->id;
       next;
     }

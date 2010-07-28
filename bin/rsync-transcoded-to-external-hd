@@ -23,6 +23,8 @@ rsync -rvL --delete h264_links/ /mnt/transcoded/transcoded/h264
 echo "synchronizing mp3"
 rsync -rvL --delete mp3_links/ /mnt/transcoded/transcoded/mp3
 echo "dismounting external hd"
+rsync -rvL --delete archived/ /mnt/transcoded/archived
+echo "dismounting external hd"
 umount /dev/sdc1
 
 #
