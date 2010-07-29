@@ -1,0 +1,81 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use Path::Class qw|dir file|;
+use YAML;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use NADTMythTV;
+use NADTMythTV::Util;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'directory=s',
+  'format=s@',
+  'verbose!',
+  'debug!',
+);
+unless( $opts{directory} ) {
+  die "--directory is required!\n";
+}
+unless( -d $opts{directory} && -w _ ) {
+  die "directory $opts{directory} does not exist or is not writeable!\n";
+}
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+
+# get a lock
+NADTMythTV::Util->lock('linktree');
+
+# iterate over converted programs
+my $converts = $mythdb->resultset('NadtmythConverted');
+while( my $convert = $converts->next ) {
+  my $convertpath = file( $convert->destdir, $convert->destfile );
+  #my $stat = $convertpath->stat;
+  #my( $atime, $mtime ) = ( $stat->atime, $stat->mtime );
+  # iterate over links
+  my $links = $convert->linked;
+  while( my $link = $links->next ) {
+    my $linkpath = file( $opts{directory}, $convert->destformat, $link->linkfile );
+    unless( -d $linkpath->parent ) {
+      $log->info("creating ", $linkpath->parent);
+      $linkpath->parent->mkpath( 0, 0755 );
+    }
+    $log->info("linking $convertpath to $linkpath");
+    unless( link( $convertpath, $linkpath ) ) {
+      $log->logdie("can't link $convertpath to $linkpath: $!");
+    }
+  }
+}
+
+# all done
+NADTMythTV::Util->unlock;
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

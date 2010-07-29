@@ -17,13 +17,17 @@ then
 fi
 echo "cleaning"
 sudo -u mythtv -i /home/mythtv/bin/nadtmyth_cleanup
+tmpdir=$(mktemp -d --tmpdir=/srv/mythtv/tmp nadtmythconvert_linktree.XXXXXX)
+chown -R mythtv $tmpdir
+echo "using tempdir $tmpdir"
+echo "creating linktree"
+sudo -u mythtv -i /home/mythtv/bin/nadtmythconvert_linktree --dir $tmpdir
+echo "synchronizing"
+cd $tmpdir
+rsync -rvL --delete . /mnt/transcoded/transcoded
+rm -rf $tmpdir
 cd /srv/mythtv/transcoded
-echo "synchronizing h264"
-rsync -rvL --delete h264_links/ /mnt/transcoded/transcoded/h264
-echo "synchronizing mp3"
-rsync -rvL --delete mp3_links/ /mnt/transcoded/transcoded/mp3
-echo "dismounting external hd"
-rsync -rvL --delete archived/ /mnt/transcoded/archived
+rsync -rvL --delete archive/ /mnt/transcoded/archive
 echo "dismounting external hd"
 umount /dev/sdc1
 
