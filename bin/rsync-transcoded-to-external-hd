@@ -24,10 +24,10 @@ echo "creating linktree"
 sudo -u mythtv -i /home/mythtv/bin/nadtmythconvert_linktree --dir $tmpdir
 echo "synchronizing"
 cd $tmpdir
-rsync -rvL --delete . /mnt/transcoded/transcoded
+rsync -av --progress --delete . /mnt/transcoded/transcoded
 rm -rf $tmpdir
 cd /srv/mythtv/transcoded
-rsync -rvL --delete archive/ /mnt/transcoded/archive
+rsync -av --progress --delete archive/ /mnt/transcoded/archive
 echo "dismounting external hd"
 umount /dev/sdc1
 
