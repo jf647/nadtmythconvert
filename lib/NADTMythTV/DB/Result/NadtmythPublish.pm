@@ -39,6 +39,25 @@ __PACKAGE__->table("nadtmyth_publish");
   default_value: '0000-00-00 00:00:00'
   is_nullable: 0
 
+=head2 size
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 linked_id
+
+  data_type: 'integer'
+  default_value: 0
+  is_nullable: 0
+
+=head2 link
+
+  data_type: 'varchar'
+  default_value: (empty string)
+  is_nullable: 0
+  size: 511
+
 =head2 publish_id
 
   data_type: 'integer'
@@ -134,6 +153,12 @@ __PACKAGE__->add_columns(
     default_value => "0000-00-00 00:00:00",
     is_nullable   => 0,
   },
+  "size",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "linked_id",
+  { data_type => "integer", default_value => 0, is_nullable => 0 },
+  "link",
+  { data_type => "varchar", default_value => "", is_nullable => 0, size => 511 },
   "publish_id",
   { data_type => "integer", default_value => 0, is_nullable => 0 },
   "dest_id",
@@ -165,8 +190,8 @@ __PACKAGE__->add_columns(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-27 10:50:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WcDIjEEX/p9pOtn+xrSNnw
+# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-08-01 12:37:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:414hLOCIiQ9Te8Z+Wco7Gg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

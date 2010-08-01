@@ -29,6 +29,18 @@ CREATE TABLE nadtmyth_to_publish (
 );
 CREATE UNIQUE INDEX nadtmyth_to_publish_idx1 ON nadtmyth_to_publish ( converted_id );
 
+CREATE TABLE nadtmyth_publish_history (
+  id int not null auto_increment primary key,
+  chanid int(10) not null,
+  starttime datetime not null,
+  title varchar(128) not null,
+  subtitle varchar(128) not null,
+  description text,
+  select_date datetime not null
+);
+CREATE UNIQUE INDEX nadtmyth_publish_history_idx1 ON nadtmyth_publish_history ( chanid, starttime );
+CREATE INDEX nadtmyth_publish_history_idx2 ON nadtmyth_publish_history ( title, subtitle );
+
 CREATE TABLE nadtmyth_to_publish_dest (
   id int not null auto_increment primary key,
   to_publish_id int not null references nadtmyth_to_publish(id),

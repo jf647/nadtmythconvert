@@ -358,6 +358,5 @@ __PACKAGE__->set_primary_key("chanid", "starttime", "manualid");
 # Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z1IcJsAUSKw98jb06Hw8Tw
 
-
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;

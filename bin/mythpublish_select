@@ -37,33 +37,80 @@ my $nadtmyth = NADTMythTV->new;
 
 # set up database
 my $mythdb = $nadtmyth->mythdb;
+my $converted_rs = $mythdb->resultset('NadtmythConverted');
+my $recorded_rs = $mythdb->resultset('Recorded');
+my $publish_history_rs = $mythdb->resultset('NadtmythPublishHistory');
 
 # get a lock
 NADTMythTV::Util->lock;
 
 # get list of converted programs where there is no to_publish record
-my $rs = $mythdb->resultset('NadtmythConverted');
-my $converts = $rs->search(
+my $converts = $converted_rs->search(
   { 'to_publish.complete' => [ 0, undef ], 'recorded.autoexpire' => { '!=' => 9999 } },
   { join => [ 'to_publish', 'recorded' ] }
 );
 while( my $convert = $converts->next ) {
-  my $rs = $mythdb->resultset('Recorded');
-  my $recorded_rec = $rs->single( { chanid => $convert->chanid, starttime => $convert->starttime } );
-  unless( $recorded_rec ) {
+  my $orig = $recorded_rs->single( { chanid => $convert->chanid, starttime => $convert->starttime } );
+  unless( $orig ) {
     $log->warn("can't find source program for converted id ", $convert->id);
     next;
   }
-  my $fulltitle = NADTMythTV::Util->fulltitle( $recorded_rec );
-  my $starttime = $recorded_rec->starttime;
+  my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
+  my $starttime = $orig->starttime;
   for my $matchprofile( @{ $cfg->{publish}->{match} } ) {
     my $rx = $matchprofile->{regex};
     if( $convert->destformat eq $matchprofile->{format} && $fulltitle =~ m/$rx/ ) {
 
+      $log->info("considering $fulltitle at $starttime");
+    
+      # perform duplicate detection
+      my $dupmethod = $orig->record->dupmethod;
+      my %searchparams;
+      my $store = 1;
+      # dupmethod 1 is no duplicate checking
+      if( 1 == $dupmethod ) {
+        $log->debug("$fulltitle at $starttime recording profile has duplicate detection disabled");
+        $store = 0;
+      }
+      # dupmethod 2 is subtitle only
+      elsif( 2 == $dupmethod ) {
+        %searchparams = ( title => $orig->title, subtitle => $orig->subtitle );
+      }
+      # dupmethod 4 is description only
+      elsif( 4 == $dupmethod ) {
+        %searchparams = ( title => $orig->title, description => $orig->description );
+      }
+      # dupmethod 6 is subtitle and description
+      # dupmethod 8 is subtitle then desc - treat like 6
+      elsif( 6 == $dupmethod || 8 == $dupmethod ) {
+        %searchparams = ( title => $orig->title, subtitle => $orig->subtitle, description => $orig->description );
+      }
+      else {
+        $log->logdie("unexpected duplicate detection method $dupmethod");
+      }
+      if( %searchparams ) {
+        my $count = $publish_history_rs->search( \%searchparams )->count;
+        if( 0 != $count ) {
+          $log->info("$fulltitle at $starttime has already been published");
+          next;
+        }
+      }
+      
+      # create a publish_history record
+      if( $store ) {
+        $publish_history_rs->create( {
+          chanid => $orig->chanid,
+          starttime => $orig->starttime,
+          title => $orig->title,
+          subtitle => $orig->subtitle,
+          description => $orig->description,
+        } );
+      }
+
       # create the to_publish record if needed
       my $to_publish;
       if( $to_publish = $convert->to_publish ) {
-        $log->info("found existing to_publish record for $fulltitle at $starttime");
+        $log->debug("found existing to_publish record for $fulltitle at $starttime");
       }
       else {
         $to_publish = $convert->create_related( to_publish => {} );
@@ -76,7 +123,7 @@ while( my $convert = $converts->next ) {
         my $dests = $to_publish->search_related( to_publish_dest => { dest => $dest } );
         if( $dests->count ) {
           $to_publish_dest = $dests->first;
-          $log->info("found existing to_publish_dest record for $dest");
+          $log->debug("found existing to_publish_dest record for $dest");
         }
         else {
           $to_publish_dest = $to_publish->create_related( to_publish_dest => { dest => $dest, purge_days => $matchprofile->{dest}->{$dest}->{keepdays} } );
@@ -89,7 +136,7 @@ while( my $convert = $converts->next ) {
           my $informs = $to_publish_dest->search_related( to_publish_inform => { email => $email } );
           if( $informs->count ) {
             $to_publish_inform = $informs->first;
-            $log->info("found existing to_publish_inform for $email; not creating another");
+            $log->debug("found existing to_publish_inform for $email; not creating another");
           }
           else {
             $to_publish_inform = $to_publish_dest->create_related( to_publish_inform => { email => $email } );

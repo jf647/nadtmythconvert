@@ -445,6 +445,8 @@ __PACKAGE__->set_primary_key("recordid");
 # Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:U9wqkNIVHyxIdKD5XbUPQQ
 
+__PACKAGE__->has_one( program => 'NADTMythTV::DB::Result::Program', 'programid' );
+__PACKAGE__->has_many( recorded => 'NADTMythTV::DB::Result::Recorded', 'recordid' );
 
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;
