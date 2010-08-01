@@ -78,6 +78,7 @@ while( my $to_publish = $to_publish_it->next ) {
     my $processor = $cfg->{publish}->{dests}->{$dest->dest}->{type}->new;
     # call the publish method
     $processor->publish( $dest );
+    $log->info("finished processing destination ", $dest->dest);
     # update published, publish_date and purge_date
     $dest->published(1);
     $dest->publish_date( \'NOW()' );
