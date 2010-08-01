@@ -15,12 +15,14 @@ use YAML;
 
 # parse args
 my %opts = (
+  check => 0,
   verbose => 0,
   debug => 0,
 );
 my @origargs = @ARGV;
 GetOptions(
   \%opts,
+  'check!',
   'verbose!',
   'debug!',
 );
@@ -38,6 +40,24 @@ my $nadtmyth = NADTMythTV->new;
 
 # set up database
 my $mythdb = $nadtmyth->mythdb_ac;
+
+# in check mode, we just check how many things are to be published then
+# exit with 0 for nothing and 1 for something
+if( $opts{check} ) {
+  $log->info("just checking if anything needs to be published");
+  my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
+  my $to_publish_count = $to_publish_rs->search( { all_published => 0 } )->count;
+  if( 0 == $to_publish_count ) {
+    $log->info("nothing to publish");
+    $log->info('STOP');
+    exit(0);
+  }
+  else {
+    $log->info("$to_publish_count items waiting to be published");
+    $log->info('STOP');
+    exit(1);
+  }
+}
 
 # get a lock
 NADTMythTV::Util->lock('publish');
