@@ -61,12 +61,13 @@ while( my $convert = $converts->next ) {
     my $rx = $matchprofile->{regex};
     if( $convert->destformat eq $matchprofile->{format} && $fulltitle =~ m/$rx/ ) {
 
-      $log->info("considering $fulltitle at $starttime");
+      $log->debug("considering $fulltitle at $starttime");
     
       # perform duplicate detection
       my $dupmethod = $orig->record->dupmethod;
       my %searchparams;
       my $store = 1;
+      my $not_new = 0;
       # dupmethod 1 is no duplicate checking
       if( 1 == $dupmethod ) {
         $log->debug("$fulltitle at $starttime recording profile has duplicate detection disabled");
@@ -92,10 +93,30 @@ while( my $convert = $converts->next ) {
         my $count = $publish_history_rs->search( \%searchparams )->count;
         if( 0 != $count ) {
           $log->info("$fulltitle at $starttime has already been published");
-          next;
+          $not_new = 1;
         }
       }
-      
+
+      # create the to_publish record if needed
+      my $to_publish;
+      if( $not_new ) {
+        if( $to_publish = $convert->to_publish ) {
+          $log->debug("found existing to_publish record for $fulltitle at $starttime");
+        }
+        else {
+          $log->info("not creating a new to_publish record for $fulltitle at $starttime (found in history)");
+        }
+      }
+      else {
+        if( $to_publish = $convert->to_publish ) {
+          $log->debug("found existing to_publish record for $fulltitle at $starttime");
+        }
+        else {
+          $to_publish = $convert->create_related( to_publish => {} );
+          $log->info("created to_publish record for $fulltitle at $starttime");
+        }
+      }
+
       # create a publish_history record
       if( $store ) {
         $publish_history_rs->create( {
@@ -105,16 +126,6 @@ while( my $convert = $converts->next ) {
           subtitle => $orig->subtitle,
           description => $orig->description,
         } );
-      }
-
-      # create the to_publish record if needed
-      my $to_publish;
-      if( $to_publish = $convert->to_publish ) {
-        $log->debug("found existing to_publish record for $fulltitle at $starttime");
-      }
-      else {
-        $to_publish = $convert->create_related( to_publish => {} );
-        $log->info("created to_publish record for $fulltitle at $starttime");
       }
 
       # create to_publish_dest records if needed
