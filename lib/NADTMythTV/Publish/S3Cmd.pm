@@ -15,6 +15,20 @@ use Text::ParseWords;
 use NADTMythTV;
 use NADTMythTV::Util;
 
+sub new
+{
+
+  my $class = shift;
+  my $opts = shift;
+  my $self = $class->SUPER::new( $opts );
+  if( $opts->{throttle} ) {
+    $self->{throttle} = $opts->{limit};
+  }
+  
+  return $self;
+
+}
+
 sub publish
 {
 
@@ -39,6 +53,13 @@ sub publish
   my $command = $cfg->{publish}->{dests}->{$dest->dest}->{putcmd};
   $command =~ s/%%FILE%%/$convertpath/;
   $command =~ s/%%DEST%%/$s3dest/;
+  if( $self->{throttle} ) {
+    $command =~ s/%%THROTTLE%%/$cfg->{publish}->{dests}->{$dest->dest}->{throttlecmd}/;
+    $command =~ s/%%LIMIT%%/$self->{throttle}/;
+  }
+  else {
+    $command =~ s/%%THROTTLE%%//;
+  }
   $log->info("uploading $convertpath as $s3dest");
   $log->debug("running $command");
   if( system("$command") ) {

@@ -64,7 +64,11 @@ while( my $convert = $converts->next ) {
       $log->debug("considering $fulltitle at $starttime");
     
       # perform duplicate detection
-      my $dupmethod = $orig->record->dupmethod;
+      my $recprofile = $orig->record;
+      my $dupmethod = 6;
+      if( $recprofile ) {
+        $dupmethod = $recprofile->dupmethod;
+      }
       my %searchparams;
       my $store = 1;
       my $not_new = 0;
@@ -96,7 +100,7 @@ while( my $convert = $converts->next ) {
           $not_new = 1;
         }
       }
-
+      
       # create the to_publish record if needed
       my $to_publish;
       if( $not_new ) {

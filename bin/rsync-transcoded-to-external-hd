@@ -26,8 +26,8 @@ echo "synchronizing"
 cd $tmpdir
 rsync -av --progress --delete . /mnt/transcoded/transcoded
 rm -rf $tmpdir
-cd /srv/mythtv/transcoded
-rsync -av --progress --delete archive/ /mnt/transcoded/archive
+cd /srv/mythtv/transcoded/archive
+rsync -av --progress --delete . /mnt/transcoded/archive
 echo "dismounting external hd"
 umount /dev/sdc1
 

@@ -410,7 +410,9 @@ __PACKAGE__->has_many( converted => 'NADTMythTV::DB::Result::NadtmythConverted',
   'foreign.chanid' => 'self.chanid',
   'foreign.starttime' => 'self.starttime',
 } );
-__PACKAGE__->belongs_to( record => 'NADTMythTV::DB::Result::Record', 'recordid' );
+__PACKAGE__->belongs_to( record => 'NADTMythTV::DB::Result::Record', {
+  'foreign.recordid' => 'self.recordid',
+} );
 
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;

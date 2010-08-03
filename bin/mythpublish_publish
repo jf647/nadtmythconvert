@@ -18,6 +18,8 @@ my %opts = (
   check => 0,
   verbose => 0,
   debug => 0,
+  throttle => 0,
+  limit => 50,
 );
 my @origargs = @ARGV;
 GetOptions(
@@ -25,6 +27,8 @@ GetOptions(
   'check!',
   'verbose!',
   'debug!',
+  'throttle!',
+  'limit=i',
 );
 
 # load config
@@ -75,7 +79,7 @@ while( my $to_publish = $to_publish_it->next ) {
   while( my $dest = $dests->next ) {
     $log->info("processing destination ", $dest->dest, " using $cfg->{publish}->{dests}->{$dest->dest}->{type}");
     # instantiate a processor
-    my $processor = $cfg->{publish}->{dests}->{$dest->dest}->{type}->new;
+    my $processor = $cfg->{publish}->{dests}->{$dest->dest}->{type}->new( \%opts );
     # call the publish method
     $processor->publish( $dest );
     $log->info("finished processing destination ", $dest->dest);
