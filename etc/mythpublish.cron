@@ -1,8 +1,6 @@
-# select every 3 hours
-5  */3 *   *   *   mythtv   /home/mythtv/bin/mythpublish_select
 # publish late at night every day
-10  2   *   *   *   mythtv  nice /home/mythtv/bin/mythpublish_publish && /home/mythtv/bin/mythpublish_inform && /home/mythtv/bin/mythpublish_updatestatus
+10  2   *   *   *   mythtv  nice /home/mythtv/bin/mythpublish_select && nice /home/mythtv/bin/mythpublish_publish && nice /home/mythtv/bin/mythpublish_inform && nice /home/mythtv/bin/mythpublish_updatestatus
 # publish in the early business morning on weekdays
-10  10   *   *   1,2,3,4,5   mythtv nice /home/mythtv/bin/mythpublish_publish --throttle --limit 75 && /home/mythtv/bin/mythpublish_inform && /home/mythtv/bin/mythpublish_updatestatus
+10  10   *   *   1,2,3,4,5   mythtv nice /home/mythtv/bin/mythpublish_select && nice /home/mythtv/bin/mythpublish_publish --throttle --limit 75 && nice /home/mythtv/bin/mythpublish_inform && nice /home/mythtv/bin/mythpublish_updatestatus
 # publish in the early afternoon on weekdays
-10  14   *   *   1,2,3,4,5   mythtv nice /home/mythtv/bin/mythpublish_publish --throttle --limit 75 && /home/mythtv/bin/mythpublish_inform && /home/mythtv/bin/mythpublish_updatestatus
+10  14   *   *   1,2,3,4,5   mythtv nice nice /home/mythtv/bin/mythpublish_select && nice /home/mythtv/bin/mythpublish_publish --throttle --limit 75 && nice /home/mythtv/bin/mythpublish_inform && nice /home/mythtv/bin/mythpublish_updatestatus

@@ -80,9 +80,17 @@ my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
 my $starttime = $orig->starttime;
 $log->info( "archiving $fulltitle at $starttime");
 
+# make sure there are no outstanding to_publish records
+my $converts = $orig->search_related( 'converted' );
+while( my $convert = $converts->next ) {
+  if( $convert->to_publish ) {
+    $log->logdie("outstanding to_publish record; cannot archive");
+  }
+}
+
 # loop over convert records
 my @todel;
-my $converts = $orig->search_related( 'converted' );
+$converts = $orig->search_related( 'converted' );
 while( my $convert = $converts->next ) {
   # iterate over links
   my $links = $convert->linked;
