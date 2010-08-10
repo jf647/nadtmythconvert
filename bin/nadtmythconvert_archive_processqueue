@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use File::Copy;
+use Getopt::Long;
+use Path::Class qw|dir file|;
+use NADTMythTV;
+use NADTMythTV::Util;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'directory=s',
+  'verbose!',
+  'debug!',
+);
+unless( exists $opts{directory} ) {
+  die "--directory is required";
+}
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+my $queue_rs = $mythdb->resultset('NadtmythArchiveQueue');
+my $convert_rs = $mythdb->resultset('NadtmythConverted');
+
+# get a lock
+NADTMythTV::Util->lock;
+
+# iterate over queued records
+my $queued = $queue_rs->search;
+my @todel;
+while( my $queue = $queued->next ) {
+
+  my $orig = $queue->recorded;
+
+  # build the title
+  my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
+  my $starttime = $orig->starttime;
+  $log->info("archiving $fulltitle at $starttime");
+
+  # if there are outstanding to_publish records, skip
+  my $outstanding = 0;
+  my $converts = $orig->search_related( 'converted' );
+  while( my $convert = $converts->next ) {
+    if( $convert->to_publish ) {
+      $log->info("outstanding to_publish record");
+      $outstanding = 1, last;
+    }
+  }
+  next if( $outstanding );
+
+  # loop over convert records
+  my @todel;
+  $converts = $orig->search_related( 'converted' );
+  while( my $convert = $converts->next ) {
+    # iterate over links
+    my $links = $convert->linked;
+    while( my $link = $links->next ) {
+      my $src = file( $convert->destdir, $convert->destfile );
+      my $dst = file( $opts{directory}, $convert->destformat, $orig->title, $link->linkfile );
+      unless( -d $dst->parent ) {
+        $log->info("creating directory ", $dst->parent);
+        unless( $dst->parent->mkpath( 0, 0755 ) ) {
+          $log->logdie("can't create directory ", $dst->parent, ": $!");
+        }
+      }
+      unless( copy( $src->stringify, $dst->stringify ) ) {
+        $log->logdie("can't copy $src to $dst: $!");
+      }
+      $log->info("copied $src to $dst");
+    }
+    push @todel, $convert->id;
+  }
+  for my $todel( @todel ) {
+    $convert_rs->find( $todel )->delete;
+    $log->info("removing convert record $todel: archived");
+  }
+
+  # delete original
+  $orig->recgroup( 'Deleted' );
+  $orig->lastmodified( \'NOW()' );
+  $orig->autoexpire( 9999 );
+  $orig->update;
+
+  push @todel, $queue->id;  
+
+}
+for my $todel( @todel ) {
+  $queue_rs->find( $todel )->delete;
+}
+
+# commit the db transaction
+$mythdb->txn_commit;
+
+# all done
+NADTMythTV::Util->unlock;
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

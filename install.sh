@@ -14,6 +14,7 @@ install -o mythtv -g mythtv -m 770 -d /home/mythtv/var/run
 
 install -o mythtv -g mythtv -m 775 bin/nadtmythconvert /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/nadtmythconvert_archive /home/mythtv/bin
+install -o mythtv -g mythtv -m 775 bin/nadtmythconvert_archive_processqueue /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/nadtmythconvert_linktree /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/mythpublish_enqueue /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/mythpublish_select /home/mythtv/bin

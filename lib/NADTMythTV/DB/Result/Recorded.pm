@@ -413,6 +413,10 @@ __PACKAGE__->has_many( converted => 'NADTMythTV::DB::Result::NadtmythConverted',
 __PACKAGE__->belongs_to( record => 'NADTMythTV::DB::Result::Record', {
   'foreign.recordid' => 'self.recordid',
 } );
+__PACKAGE__->might_have( archive_queue => 'NADTMythTV::DB::Result::NadtmythArchiveQueue', {
+  'foreign.orig_chanid' => 'self.chanid',
+  'foreign.orig_starttime' => 'self.starttime',
+} );
 
 # You can replace this text with custom content, and it will be preserved on regeneration
 1;

@@ -70,6 +70,14 @@ CREATE TABLE nadtmyth_to_publish_inform (
 );
 CREATE UNIQUE INDEX nadtmyth_to_publish_inform_idx1 ON nadtmyth_to_publish_inform( to_publish_dest_id, email );
 
+CREATE TABLE nadtmyth_archive_queue (
+  id int not null auto_increment primary key,
+  orig_chanid int(10) NOT NULL references recorded(chanid),
+  orig_starttime datetime NOT NULL references recorded(starttime),
+  request_date DATETIME NOT NULL
+);
+CREATE UNIQUE INDEX nadtmyth_archive_queue_idx1 ON nadtmyth_archive_queue(orig_chanid, orig_starttime);
+
 CREATE VIEW nadtmyth_publish_queue
 AS
 SELECT

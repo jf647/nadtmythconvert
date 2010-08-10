@@ -41,6 +41,7 @@ my $to_publish_rs = $mythdb->resultset('NadtmythToPublish');
 my $to_publish_dest_rs = $mythdb->resultset('NadtmythToPublishDest');
 my $to_publish_inform_rs = $mythdb->resultset('NadtmythToPublishInform');
 my $publish_s3_rs = $mythdb->resultset('NadtmythPublishS3');
+my $queue_rs = $mythdb->resultset('NadtmythArchiveQueue');
 
 # build convert dirs
 my @convertdirs;
@@ -187,6 +188,21 @@ while( ! $done ) {
   for my $todel( @todel ) {
     $log->info("removing publish_s3 record $todel: no matching to_publish_dest record");
     $publish_s3_rs->find( $todel )->delete;
+    $touched++;
+  }
+
+  # remove publish_archive_queue records that have no orig record
+  $log->info("looking for publish_archive_queue records that have no orig record");
+  my $queued = $queue_rs->search;
+  undef @todel;
+  while( my $queue = $queued->next ) {
+    unless( $queue->recorded ) {
+      push @todel, $queue->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("removing publish_archive_queue record $todel: no matching orig record");
+    $queue_rs->find( $todel )->delete;
     $touched++;
   }
 

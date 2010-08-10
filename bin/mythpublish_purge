@@ -66,6 +66,18 @@ for my $todel( @todel ) {
   $to_publish_dest_rs->find( $todel )->delete;
 }
 
+# for each dest, report on published items we don't know about
+for my $dest( keys %{ $cfg->{publish}->{dests} } ) {
+  my $processor = $cfg->{publish}->{dests}->{$dest}->{type}->new;
+  my %published_urls = ( map { $_ => 1 } @{ $processor->published_urls } );
+  my %db_urls = ( map { $_ => 1 } @{ $processor->db_urls } );
+  for my $url( keys %published_urls ) {
+    unless( exists $db_urls{$url} ) {
+      $log->warn("found unknown published URL: $url");
+    }
+  }
+}
+
 # commit the transaction
 $mythdb->txn_commit;
 

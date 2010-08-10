@@ -80,11 +80,21 @@ my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
 my $starttime = $orig->starttime;
 $log->info( "archiving $fulltitle at $starttime");
 
-# make sure there are no outstanding to_publish records
+# if there are outstanding to_publish records, just queue the request
 my $converts = $orig->search_related( 'converted' );
 while( my $convert = $converts->next ) {
   if( $convert->to_publish ) {
-    $log->logdie("outstanding to_publish record; cannot archive");
+    $log->warn("outstanding to_publish record; adding to queue instead");
+    if( $orig->archive_queue ) {
+      $log->error("already queued to be archived");
+    }
+    else {
+      $orig->create_related( archive_queue => { request_date => \'NOW()' } );
+      $mythdb->txn_commit;
+    }
+    NADTMythTV::Util->unlock;
+    $log->info('STOP');
+    exit(0);
   }
 }
 
@@ -96,7 +106,13 @@ while( my $convert = $converts->next ) {
   my $links = $convert->linked;
   while( my $link = $links->next ) {
     my $src = file( $convert->destdir, $convert->destfile );
-    my $dst = file( $opts{directory}, $link->linkfile );
+    my $dst = file( $opts{directory}, $convert->destformat, $orig->title, $link->linkfile );
+    unless( -d $dst->parent ) {
+      $log->info("creating directory ", $dst->parent);
+      unless( $dst->parent->mkpath( 0, 0755 ) ) {
+        $log->logdie("can't create directory ", $dst->parent, ": $!");
+      }
+    }
     unless( copy( $src->stringify, $dst->stringify ) ) {
       $log->logdie("can't copy $src to $dst: $!");
     }

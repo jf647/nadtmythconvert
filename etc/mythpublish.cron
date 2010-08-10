@@ -4,3 +4,5 @@
 10  10   *   *   1,2,3,4,5   mythtv nice /home/mythtv/bin/mythpublish_select && nice /home/mythtv/bin/mythpublish_publish --throttle --limit 75 && nice /home/mythtv/bin/mythpublish_inform && nice /home/mythtv/bin/mythpublish_updatestatus
 # publish in the early afternoon on weekdays
 10  14   *   *   1,2,3,4,5   mythtv nice nice /home/mythtv/bin/mythpublish_select && nice /home/mythtv/bin/mythpublish_publish --throttle --limit 75 && nice /home/mythtv/bin/mythpublish_inform && nice /home/mythtv/bin/mythpublish_updatestatus
+# process the archive queue
+10  16  *   *   *   mythtv nice /home/mythtv/bin/nadtmythconvert_archive_processqueue --directory /srv/mythtv/transcoded/archive
