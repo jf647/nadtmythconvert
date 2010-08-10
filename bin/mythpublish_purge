@@ -10,6 +10,7 @@ use lib "$FindBin::Bin/../lib";
 use Getopt::Long;
 use NADTMythTV;
 use NADTMythTV::Util;
+use NADTMythTV::Publish::S3;
 use NADTMythTV::Publish::S3Cmd;
 use YAML;
 

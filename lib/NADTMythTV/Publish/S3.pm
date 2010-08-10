@@ -77,6 +77,10 @@ sub publish
 
 }
 
+# stubs to allow mythpublish_purge to run
+sub published_urls { [] }
+sub db_urls { [] }
+
 # keep require happy
 1;
 

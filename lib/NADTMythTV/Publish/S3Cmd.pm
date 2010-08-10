@@ -11,7 +11,7 @@ use warnings;
 use Path::Class qw|dir file|;
 use URI::Escape;
 use Text::ParseWords;
-use File::Temp 'tmpfile';
+use File::Temp 'tempfile';
 use IO::File;
 
 use NADTMythTV;
@@ -123,7 +123,7 @@ sub published_urls
   my @urls;
   while( my $line = $fh->getline ) {
     chomp $line;
-    my(undef, undef, $url) = split(/\s+/, $line);
+    my(undef, undef, undef, $url) = split(/\s+/, $line, 4);
     push @urls, $url;
   }
   
