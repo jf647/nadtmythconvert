@@ -206,6 +206,22 @@ while( ! $done ) {
     $touched++;
   }
 
+  # remove publish_archive_queue records where the orig record is autoexpire deleted
+  $log->info("looking for publish_archive_queue records where the orig record is autoexpire deleted");
+  my $queued = $queue_rs->search;
+  undef @todel;
+  while( my $queue = $queued->next ) {
+    my $orig = $queue->recorded;
+    if( 9999 == $orig->autoexpire && 'Deleted' eq $orig->recgroup ) {
+      push @todel, $queue->id;
+    }
+  }
+  for my $todel( @todel ) {
+    $log->info("removing publish_archive_queue record $todel: orig record is autoexpire deleted");
+    $queue_rs->find( $todel )->delete;
+    $touched++;
+  }
+
   # iterate over convert records, removing any that aren't on disk
   $log->info("looking for converted records no longer on disk");
   $converted = $converted_rs->search;

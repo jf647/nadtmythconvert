@@ -52,6 +52,7 @@ my $mythdb = $nadtmyth->mythdb;
 NADTMythTV::Util->lock('linktree');
 
 # iterate over converted programs
+my $linked = 0;
 my $converts = $mythdb->resultset('NadtmythConverted');
 while( my $convert = $converts->next ) {
   my $convertpath = file( $convert->destdir, $convert->destfile );
@@ -65,12 +66,14 @@ while( my $convert = $converts->next ) {
       $log->info("creating ", $linkpath->parent);
       $linkpath->parent->mkpath( 0, 0755 );
     }
-    $log->info("linking $convertpath to $linkpath");
+    $log->debug("linking $convertpath to $linkpath");
     unless( link( $convertpath, $linkpath ) ) {
       $log->logdie("can't link $convertpath to $linkpath: $!");
     }
+    $linked++;
   }
 }
+$log->info("created $linked links");
 
 # all done
 NADTMythTV::Util->unlock;
