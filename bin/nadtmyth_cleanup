@@ -208,7 +208,7 @@ while( ! $done ) {
 
   # remove publish_archive_queue records where the orig record is autoexpire deleted
   $log->info("looking for publish_archive_queue records where the orig record is autoexpire deleted");
-  my $queued = $queue_rs->search;
+  $queued = $queue_rs->search;
   undef @todel;
   while( my $queue = $queued->next ) {
     my $orig = $queue->recorded;

@@ -85,6 +85,7 @@ while( my $to_publish_inform = $to_publish_inform_it->next ) {
     format => $convert->destformat,
     url => $s3->url,
     public_url => $s3->public_url,
+    torrent_url => $s3->torrent_url,
     purge_date => $to_publish_dest->purge_date,
     size => $convert->destsize,
     sizeh => format_bytes( $convert->destsize ),

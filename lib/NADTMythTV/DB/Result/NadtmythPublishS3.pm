@@ -48,6 +48,12 @@ __PACKAGE__->table("nadtmyth_publish_s3");
   is_nullable: 1
   size: 250
 
+=head2 torrent_url
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 250
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -61,13 +67,15 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 250 },
   "public_url",
   { data_type => "varchar", is_nullable => 1, size => 250 },
+  "torrent_url",
+  { data_type => "varchar", is_nullable => 1, size => 250 },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("nadtmyth_publish_s3_idx1", ["to_publish_dest_id"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-26 10:52:52
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V3Xniig/BTMY2tj4AB4eaA
+# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-09-06 14:35:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+ciGdfUhWOGdaL/n5pYizw
 
 __PACKAGE__->belongs_to( 'to_publish_dest', 'NADTMythTV::DB::Result::NadtmythToPublishDest', 'to_publish_dest_id' );
 

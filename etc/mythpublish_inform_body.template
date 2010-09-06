@@ -4,5 +4,6 @@ Format         : [% format %]
 Size           : [% sizeh %]
 Available Until: [% purge_date %]
 URL            : [% public_url %]
+Bit Torrent URL: [% torrent_url %]
 
 [% description %]

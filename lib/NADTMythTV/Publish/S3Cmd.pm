@@ -70,7 +70,8 @@ sub publish
   
   # insert the s3 url into the database
   my $uri = "http://s3.amazonaws.com/$bucketname/" . uri_escape($destname);
-  $dest->create_related( s3 => { objkey => $destname, url => $s3dest, public_url => $uri } );
+  my $torrent_uri = "http://s3.amazonaws.com/$bucketname/" . uri_escape($destname) . '?torrent';
+  $dest->create_related( s3 => { objkey => $destname, url => $s3dest, public_url => $uri, torrent_url => $torrent_uri } );
 
 }
 
