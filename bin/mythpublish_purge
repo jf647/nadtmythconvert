@@ -53,9 +53,14 @@ while( my $to_publish_dest = $to_publish_dest_it->next ) {
   my $to_publish = $to_publish_dest->to_publish;
   my $convert = $to_publish->converted;
   my $orig = $convert->recorded;
-  my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
-  my $starttime = $orig->starttime;
-  $log->info("purging $fulltitle at $starttime");
+  if( $orig ) {
+    my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
+    my $starttime = $orig->starttime;
+    $log->info("purging $fulltitle at $starttime");
+  }
+  else {
+    $log->warn("no orig record for chanid ", $convert->chanid, " starttime ", $convert->starttime);
+  }
   # instantiate a processor
   my $processor = $cfg->{publish}->{dests}->{$to_publish_dest->dest}->{type}->new;
   # call the purge method

@@ -24,6 +24,7 @@ NADTMythTV::Workflow->mk_accessors( qw|
   job
 |);
 
+use FindBin;
 use File::pushd;
 use Path::Class     qw|dir file|;
 use IPC::Run        qw|run|;
@@ -90,6 +91,7 @@ sub process
   $self->statusupdate('created symlinks to original program');
   $self->makeconvertedlinks( $convert );
   $self->statusupdate('created links to destination file');
+  $self->runselect();
   $self->statusupdate('complete');
 
 }
@@ -421,6 +423,21 @@ sub analyzestreams
 {
 
   # no-op
+
+}
+
+sub runselect
+{
+
+  my $log = NADTMythTV->log;
+
+  # call out to mythpublish_select so that we can delete / archive immediately
+  my @command = ( "$FindBin::Bin/mythpublish_select" );
+  $log->debug("running command: @command");
+  my $output;
+  unless( run \@command, '>&', \$output ) {
+    $log->error("cannot run @command: $output");
+  }
 
 }
 

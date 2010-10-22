@@ -142,6 +142,21 @@ sub getfileinfo
           $astream->{bitrate} = $4;
           push @{ $info->{audio} }, $astream;
         }
+        # Stream #0.1[0x25a](eng): Audio: mp2, 48000 Hz, stereo, s16, 128 kb/s
+        elsif( $line =~ m/Stream\s#(\d+\.\d+).+\s+(\d+)\s+Hz.+(stereo|mono).+\s+(\d+)\s+kb\/s/ ) {
+          $log->debug("found audio stream");
+          $log->debug($line);
+          my $astream = { index => $1 };
+          $astream->{samplerate} = $2;
+          if( 'mono' eq $3 ) {
+            $astream->{channels} = 1;
+          }
+          elsif( 'stereo' eq $3 ) {
+            $astream->{channels} = 2;
+          }
+          $astream->{bitrate} = $4;
+          push @{ $info->{audio} }, $astream;
+        }        
         # Stream #0.1(und): Audio: aac, 48000 Hz, 2 channels, s16
         elsif( $line =~ m/Stream\s+#(\d+\.\d+).+\s+(\d+)\s+Hz.+\s+(\d+)\s+channels/ ) {
           $log->debug("found audio stream");

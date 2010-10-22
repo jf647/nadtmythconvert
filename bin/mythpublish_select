@@ -126,6 +126,7 @@ while( my $convert = $converts->next ) {
           title => $orig->title,
           subtitle => $orig->subtitle,
           description => $orig->description,
+          select_date => \'NOW()',
         } );
       }
 

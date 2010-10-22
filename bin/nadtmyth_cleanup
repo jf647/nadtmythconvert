@@ -42,6 +42,7 @@ my $to_publish_dest_rs = $mythdb->resultset('NadtmythToPublishDest');
 my $to_publish_inform_rs = $mythdb->resultset('NadtmythToPublishInform');
 my $publish_s3_rs = $mythdb->resultset('NadtmythPublishS3');
 my $queue_rs = $mythdb->resultset('NadtmythArchiveQueue');
+my $pubhistory_rs = $mythdb->resultset('NadtmythPublishHistory');
 
 # build convert dirs
 my @convertdirs;
@@ -219,6 +220,19 @@ while( ! $done ) {
   for my $todel( @todel ) {
     $log->info("removing publish_archive_queue record $todel: orig record is autoexpire deleted");
     $queue_rs->find( $todel )->delete;
+    $touched++;
+  }
+  
+  # remove publish history records over the threshold
+  $log->info("looking for old publish history records");
+  my $pubhistories = $pubhistory_rs->search( { select_date => { '<' => \'DATE_SUB(NOW(), INTERVAL 3 MONTH)' } } );
+  undef @todel;
+  while( my $pubhistory = $pubhistories->next ) {
+    push @todel, $pubhistory->id;
+  }
+  for my $todel( @todel ) {
+    $log->info("removing publish history record $todel: selected over 90 days ago");
+    $pubhistory_rs->find( $todel )->delete;
     $touched++;
   }
 
