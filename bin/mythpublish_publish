@@ -80,9 +80,15 @@ while( my $to_publish = $to_publish_it->next ) {
     $log->info("processing destination ", $dest->dest, " using $cfg->{publish}->{dests}->{$dest->dest}->{type}");
     # instantiate a processor
     my $processor = $cfg->{publish}->{dests}->{$dest->dest}->{type}->new( \%opts );
-    # call the publish method
-    $processor->publish( $dest );
-    $log->info("finished processing destination ", $dest->dest);
+    # check if it has already been published
+    if( $processor->published( $dest ) ) {
+      $log->info("already published");
+    }
+    else {
+      # call the publish method
+      $processor->publish( $dest );
+      $log->info("finished processing destination ", $dest->dest);
+    }
     # update published, publish_date and purge_date
     $dest->published(1);
     $dest->publish_date( \'NOW()' );

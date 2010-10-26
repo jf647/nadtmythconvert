@@ -31,6 +31,28 @@ sub new
 
 }
 
+sub published
+{
+
+  my $self = shift;
+  my $dest = shift;
+
+  my $convert = $dest->to_publish->converted;
+  my $orig = $convert->recorded;
+
+  my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
+  my $starttime = $orig->starttime;
+
+  my $convertpath = file( $convert->destdir, $convert->destfile );
+  my( $ext ) = ( $convertpath =~ m/\.(.+)$/ );
+  my $destname = "$fulltitle - $starttime.$ext";
+
+  # check if we've already published this
+  return 1 if $dest->find_related( s3 => { objkey => $destname } );
+  return 0;
+  
+}
+
 sub publish
 {
 

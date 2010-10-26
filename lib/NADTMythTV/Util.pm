@@ -306,6 +306,25 @@ sub unlock
 
 }
 
+sub sanitize_path
+{
+
+  my $path = shift;
+
+  if( 'Path::Class::File' eq ref $path ) {
+    my $newpath = $path->stringify;
+    $newpath =~ s/["?:*]//g;
+    $newpath =~ s|/| of |g;
+    return file( $newpath );
+  }
+  else {
+    $path =~ s/["?:*]//g;
+    $path =~ s|/| of |g;
+    return $path;
+  }
+
+}
+
 # keep require happy
 1;
 
