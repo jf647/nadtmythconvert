@@ -59,18 +59,19 @@ while( my $queue = $queued->next ) {
   # build the title
   my $fulltitle = NADTMythTV::Util->fulltitle( $orig );
   my $starttime = $orig->starttime;
-  $log->info("archiving $fulltitle at $starttime");
 
   # if there are outstanding to_publish records, skip
   my $outstanding = 0;
   my $converts = $orig->search_related( 'converted' );
   while( my $convert = $converts->next ) {
     if( $convert->to_publish ) {
-      $log->info("outstanding to_publish record");
+      $log->info("skipping archive of $fulltitle at $starttime - outstanding to_publish record");
       $outstanding = 1, last;
     }
   }
   next if( $outstanding );
+
+  $log->info("archiving $fulltitle at $starttime");
 
   # loop over convert records
   my @todel;
@@ -81,7 +82,7 @@ while( my $queue = $queued->next ) {
     while( my $link = $links->next ) {
       my $src = file( $convert->destdir, $convert->destfile );
       my $dst = file( $opts{directory}, $convert->destformat, $orig->title, $link->linkfile );
-      $dst = MythTV::Util::sanitize_path( $dst );
+      $dst = NADTMythTV::Util::sanitize_path( $dst );
       unless( -d $dst->parent ) {
         $log->info("creating directory ", $dst->parent);
         unless( $dst->parent->mkpath( 0, 0755 ) ) {

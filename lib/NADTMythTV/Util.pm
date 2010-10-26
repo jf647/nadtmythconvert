@@ -314,12 +314,12 @@ sub sanitize_path
   if( 'Path::Class::File' eq ref $path ) {
     my $newpath = $path->stringify;
     $newpath =~ s/["?:*]//g;
-    $newpath =~ s|/| of |g;
+    $newpath =~ s|(\d+)/(\d+)|$1 of $2|g;
     return file( $newpath );
   }
   else {
     $path =~ s/["?:*]//g;
-    $path =~ s|/| of |g;
+    $path =~ s|(\d+)/(\d+)|$1 of $2|g;
     return $path;
   }
 
