@@ -1,0 +1,97 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use NADTMythTV;
+use NADTMythTV::Util;
+use YAML;
+
+# parse args
+my %opts = (
+  verbose => 0,
+  debug => 0,
+);
+my @origargs = @ARGV;
+GetOptions(
+  \%opts,
+  'verbose!',
+  'debug!',
+  'profile=s',
+);
+
+# load config
+my $cfg = NADTMythTV->cfg;
+
+# get logging
+my $log = NADTMythTV->log( verbose => $opts{verbose}, debug => $opts{debug} );
+$log->debug("orig args: @origargs");
+$log->info('START');
+
+# check the profile exists
+unless( $opts{profile} ) {
+  my $dow = (localtime(time))[6];
+  $log->debug("day of week is $dow");
+  $opts{profile} = $cfg->{dow_to_startup_profile}->[$dow];
+  $log->info("selected profile '$opts{profile}' for day of week $dow");
+}
+unless( exists $cfg->{startup_times}->{$opts{profile}} ) {
+  $log->fatal("no such startup time profile '$opts{profile}'!");
+}
+
+# set up MythTV
+my $nadtmyth = NADTMythTV->new;
+
+# set up database
+my $mythdb = $nadtmyth->mythdb;
+my $settings_rs = $mythdb->resultset('Setting');
+
+# get a lock
+NADTMythTV::Util->lock;
+
+# set startup times
+my @settings = qw|DailyWakeupStartPeriod1 DailyWakeupEndPeriod1 DailyWakeupStartPeriod2 DailyWakeupEndPeriod2|;
+my @values = (
+  $cfg->{startup_times}->{$opts{profile}}->{1}->{start},
+  $cfg->{startup_times}->{$opts{profile}}->{1}->{end},
+  $cfg->{startup_times}->{$opts{profile}}->{2}->{start},
+  $cfg->{startup_times}->{$opts{profile}}->{2}->{end}
+);
+while( my $setting = shift @settings ) {
+  my $value = shift @values;
+  my $setting_rec = $settings_rs->single( { value => $setting, hostname => undef } );
+  unless( $setting_rec ) {
+    $log->fatal("can't find setting record for '$setting'");
+  }
+  $mythdb->storage->dbh->do(<<SQL) or $log->fatal("can't update setting");
+
+UPDATE
+  settings
+SET
+  data = '$value'
+WHERE
+  value = '$setting'
+AND
+  hostname IS NULL
+
+SQL
+
+  $log->info("set '$setting' to '$value'");
+
+}
+
+# commit database
+$mythdb->txn_commit;
+
+# all done
+NADTMythTV::Util->unlock;
+$log->info('STOP');
+exit(0);
+
+#
+# EOF

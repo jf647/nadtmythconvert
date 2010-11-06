@@ -24,11 +24,15 @@ install -o mythtv -g mythtv -m 775 bin/mythpublish_purge /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/mythpublish_updatestatus /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/nadtmyth_cleanup /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/nadtmyth_massenqueue /home/mythtv/bin
+install -o mythtv -g mythtv -m 775 bin/nadtmyth_wakeup_times /home/mythtv/bin
 install -o mythtv -g mythtv -m 775 bin/rsync-transcoded-to-external-hd /home/mythtv/bin
 install -o root -g root -m 644 etc/mythpublish.cron /etc/cron.d/mythpublish
 install -o mythtv -g mythtv -m 640 etc/nadtmythconvert.yaml /home/mythtv/etc
 install -o mythtv -g mythtv -m 640 etc/mythpublish_inform_subject.template /home/mythtv/etc
 install -o mythtv -g mythtv -m 640 etc/mythpublish_inform_body.template /home/mythtv/etc
+install -o root -g root -m 640 etc/nadtmyth_wakeup_times.upstart /etc/init/nadtmyth_wakeup_times.conf
+rm -f /etc/init.d/nadtmyth_wakeup_times
+ln -s /lib/init/upstart-job /etc/init.d/nadtmyth_wakeup_times
 pax -r -w lib /home/mythtv
 
 find /home/mythtv/lib -name "*.pm" | xargs chown mythtv:mythtv

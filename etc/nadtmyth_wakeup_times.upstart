@@ -1,0 +1,6 @@
+description "set mythtv wakeup times"
+
+start on started mysql
+
+task
+exec /usr/bin/sudo -u mythtv -i /home/mythtv/bin/nadtmyth_wakeup_times
