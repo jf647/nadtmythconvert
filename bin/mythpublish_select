@@ -115,6 +115,14 @@ while( my $convert = $converts->next ) {
         else {
           $to_publish = $convert->create_related( to_publish => {} );
           $log->info("created to_publish record for $fulltitle at $starttime");
+          # if the profile is set to delete-on-publish, mark the original as autoexpired
+          if( exists $matchprofile->{deleteonpublish} ) {
+            $log->info("marking original recording as autoexpired");
+            $orig->recgroup('Deleted');
+            $orig->autoexpire(9999);
+            $orig->lastmodified( \'NOW()' );
+            $orig->update;
+          }
         }
       }
 
