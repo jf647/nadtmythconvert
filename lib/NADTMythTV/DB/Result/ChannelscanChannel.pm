@@ -22,19 +22,13 @@ __PACKAGE__->table("channelscan_channel");
 =head2 transportid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 scanid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 mplex_id
@@ -45,20 +39,14 @@ __PACKAGE__->table("channelscan_channel");
 =head2 source_id
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 channel_id
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 callsign
@@ -86,30 +74,21 @@ __PACKAGE__->table("channelscan_channel");
 
   data_type: 'mediumint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 atsc_major_channel
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 atsc_minor_channel
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 use_on_air_guide
@@ -162,60 +141,42 @@ __PACKAGE__->table("channelscan_channel");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 vct_tsid
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 vct_chan_tsid
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 sdt_tsid
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 orig_netid
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 netid
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 si_standard
@@ -228,120 +189,84 @@ __PACKAGE__->table("channelscan_channel");
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 in_pat
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 in_pmt
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 in_vct
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 in_nit
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 in_sdt
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 is_encrypted
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 is_data_service
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 is_audio_service
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 is_opencable
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 could_be_opencable
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 decryption_status
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 default_authority
@@ -548,8 +473,8 @@ __PACKAGE__->add_columns(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:G2Rxp/WcKWxvUqawuObbkw
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7bHpbjAJDpFP6hoQUnpLLg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

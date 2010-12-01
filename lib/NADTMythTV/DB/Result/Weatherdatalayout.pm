@@ -34,20 +34,14 @@ __PACKAGE__->table("weatherdatalayout");
 =head2 weatherscreens_screen_id
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_foreign_key: 1
   is_nullable: 0
 
 =head2 weathersourcesettings_sourceid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_foreign_key: 1
   is_nullable: 0
 
@@ -94,7 +88,7 @@ __PACKAGE__->belongs_to(
   "weatherscreens_screen",
   "NADTMythTV::DB::Result::Weatherscreen",
   { screen_id => "weatherscreens_screen_id" },
-  { on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 =head2 weathersourcesettings_sourceid
@@ -109,12 +103,12 @@ __PACKAGE__->belongs_to(
   "weathersourcesettings_sourceid",
   "NADTMythTV::DB::Result::Weathersourcesetting",
   { sourceid => "weathersourcesettings_sourceid" },
-  { on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZOfNwJiDeui6lhI3/B6bnQ
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hSIg/dXf1D2+w+92i6EbQQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

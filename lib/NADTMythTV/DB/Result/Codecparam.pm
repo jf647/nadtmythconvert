@@ -23,10 +23,7 @@ __PACKAGE__->table("codecparams");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 name
@@ -60,8 +57,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("profile", "name");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yi2t0XXCQKwuMHeWJfuf2A
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7o1wobonOdRjlF/MTohF1A
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

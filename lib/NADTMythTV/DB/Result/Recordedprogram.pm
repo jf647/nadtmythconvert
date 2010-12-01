@@ -23,10 +23,7 @@ __PACKAGE__->table("recordedprogram");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 starttime
@@ -84,10 +81,7 @@ __PACKAGE__->table("recordedprogram");
 
   data_type: 'float'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 previouslyshown
@@ -183,10 +177,7 @@ __PACKAGE__->table("recordedprogram");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 generic
@@ -216,46 +207,19 @@ __PACKAGE__->table("recordedprogram");
 =head2 audioprop
 
   data_type: 'set'
-  extra: {
-  list => [
-    "STEREO",
-    "MONO",
-    "SURROUND",
-    "DOLBY",
-    "HARDHEAR",
-    "VISUALIMPAIR"
-  ]
-}
-
+  extra: {list => ["STEREO","MONO","SURROUND","DOLBY","HARDHEAR","VISUALIMPAIR"]}
   is_nullable: 0
 
 =head2 subtitletypes
 
   data_type: 'set'
-  extra: {
-  list => [
-    "HARDHEAR",
-    "NORMAL",
-    "ONSCREEN",
-    "SIGNED"
-  ]
-}
-
+  extra: {list => ["HARDHEAR","NORMAL","ONSCREEN","SIGNED"]}
   is_nullable: 0
 
 =head2 videoprop
 
   data_type: 'set'
-  extra: {
-  list => [
-    "HDTV",
-    "WIDESCREEN",
-    "AVC",
-    720,
-    1080
-  ]
-}
-
+  extra: {list => ["HDTV","WIDESCREEN","AVC",720,1080]}
   is_nullable: 0
 
 =cut
@@ -346,8 +310,8 @@ __PACKAGE__->add_columns(
   {
     data_type => "set",
     extra => {
-          list => ["STEREO", "MONO", "SURROUND", "DOLBY", "HARDHEAR", "VISUALIMPAIR"],
-        },
+      list => ["STEREO", "MONO", "SURROUND", "DOLBY", "HARDHEAR", "VISUALIMPAIR"],
+    },
     is_nullable => 0,
   },
   "subtitletypes",
@@ -366,8 +330,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("chanid", "starttime", "manualid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/5yFWl1V5JEoY8U+E79QiA
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hbTx7TC7M9vl+ajjtKvcsQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

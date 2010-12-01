@@ -41,6 +41,13 @@ CREATE TABLE nadtmyth_publish_history (
 CREATE UNIQUE INDEX nadtmyth_publish_history_idx1 ON nadtmyth_publish_history ( chanid, starttime );
 CREATE INDEX nadtmyth_publish_history_idx2 ON nadtmyth_publish_history ( title, subtitle );
 
+CREATE TABLE nadtmyth_publish_checksum (
+  id int not null auto_increment primary key,
+  digest char(32),
+  publish_date datetime not null
+);
+CREATE UNIQUE INDEX nadtmyth_publish_checksum_idx1 ON nadtmyth_publish_checksum( digest );
+
 CREATE TABLE nadtmyth_to_publish_dest (
   id int not null auto_increment primary key,
   to_publish_id int not null references nadtmyth_to_publish(id),

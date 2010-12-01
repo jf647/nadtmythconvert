@@ -22,10 +22,7 @@ __PACKAGE__->table("people");
 =head2 person
 
   data_type: 'mediumint'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
@@ -53,8 +50,8 @@ __PACKAGE__->set_primary_key("person");
 __PACKAGE__->add_unique_constraint("name", ["name"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vnigVPQTs7SkF/LaRNkeMA
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UZ/NxubpNYCtBrfZ+xzAHA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

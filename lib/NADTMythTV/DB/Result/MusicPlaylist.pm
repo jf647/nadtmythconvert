@@ -22,10 +22,7 @@ __PACKAGE__->table("music_playlists");
 =head2 playlist_id
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
@@ -51,20 +48,14 @@ __PACKAGE__->table("music_playlists");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 songcount
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 hostname
@@ -114,8 +105,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("playlist_id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PRxuMTnezZz1Zfj9RTTRXw
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:U3xnXdrRvXB7mWk8a0UoKw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

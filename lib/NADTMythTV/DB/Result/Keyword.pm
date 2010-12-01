@@ -30,10 +30,7 @@ __PACKAGE__->table("keyword");
 
   data_type: 'integer'
   default_value: 3
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =cut
@@ -52,8 +49,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->add_unique_constraint("phrase", ["phrase", "searchtype"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uF4H1GFfPEXS+Sz7rlgWgQ
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OAkSKdRZvKq4vvRzXKPXtA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

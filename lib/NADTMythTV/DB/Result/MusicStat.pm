@@ -23,40 +23,28 @@ __PACKAGE__->table("music_stats");
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 num_albums
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 num_songs
 
   data_type: 'mediumint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 num_genres
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 total_time
@@ -111,8 +99,8 @@ __PACKAGE__->add_columns(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ybpslcv+ze21H3W3IRHHwQ
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Du8kl78vMqrt6rdyiZP9HA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

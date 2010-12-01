@@ -22,19 +22,13 @@ __PACKAGE__->table("recordmatch");
 =head2 recordid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 chanid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 starttime
@@ -45,10 +39,7 @@ __PACKAGE__->table("recordmatch");
 =head2 manualid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 oldrecduplicate
@@ -93,8 +84,8 @@ __PACKAGE__->add_columns(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hJqrTTXjGR8grsLHlAfNKQ
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+GmYGmDvJ7NKsSfOXqplKg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

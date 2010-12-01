@@ -23,10 +23,7 @@ __PACKAGE__->table("upnpmedia");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 class
@@ -47,10 +44,7 @@ __PACKAGE__->table("upnpmedia");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 itemproperties
@@ -123,8 +117,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("intid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6Zp9g0xyqEWTx9einXz0xg
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZD0wTEBlm1iu/ESjyGYh3A
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

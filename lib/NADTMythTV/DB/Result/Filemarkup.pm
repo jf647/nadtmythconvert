@@ -28,19 +28,13 @@ __PACKAGE__->table("filemarkup");
 
   data_type: 'mediumint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 offset
 
   data_type: 'bigint'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 type
@@ -68,8 +62,8 @@ __PACKAGE__->add_columns(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xOvT4/2w+LP/Pc/N4QqE9Q
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QSqBrLAhadM8Fe7fZNwGRg
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

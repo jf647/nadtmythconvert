@@ -23,20 +23,14 @@ __PACKAGE__->table("credits");
 
   data_type: 'mediumint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 chanid
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 starttime
@@ -48,22 +42,7 @@ __PACKAGE__->table("credits");
 =head2 role
 
   data_type: 'set'
-  extra: {
-  list => [
-    "actor",
-    "director",
-    "producer",
-    "executive_producer",
-    "writer",
-    "guest_star",
-    "host",
-    "adapter",
-    "presenter",
-    "commentator",
-    "guest"
-  ]
-}
-
+  extra: {list => ["actor","director","producer","executive_producer","writer","guest_star","host","adapter","presenter","commentator","guest"]}
   is_nullable: 0
 
 =cut
@@ -93,28 +72,28 @@ __PACKAGE__->add_columns(
   {
     data_type => "set",
     extra => {
-          list => [
-                "actor",
-                "director",
-                "producer",
-                "executive_producer",
-                "writer",
-                "guest_star",
-                "host",
-                "adapter",
-                "presenter",
-                "commentator",
-                "guest",
-              ],
-        },
+      list => [
+        "actor",
+        "director",
+        "producer",
+        "executive_producer",
+        "writer",
+        "guest_star",
+        "host",
+        "adapter",
+        "presenter",
+        "commentator",
+        "guest",
+      ],
+    },
     is_nullable => 0,
   },
 );
 __PACKAGE__->add_unique_constraint("chanid", ["chanid", "starttime", "person", "role"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:J1XB08MMnQuTyReVeaucow
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JiZZ+rJbagu0j7mtBCYInw
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

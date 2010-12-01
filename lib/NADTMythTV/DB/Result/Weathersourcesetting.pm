@@ -22,10 +22,7 @@ __PACKAGE__->table("weathersourcesettings");
 =head2 sourceid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
@@ -40,20 +37,14 @@ __PACKAGE__->table("weathersourcesettings");
 
   data_type: 'integer'
   default_value: 600
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 retrieve_timeout
 
   data_type: 'integer'
   default_value: 60
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 hostname
@@ -162,8 +153,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iCIRb7sjQBlPur6PteiG5Q
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0siRN20NKYjOaV6xFhV+qA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

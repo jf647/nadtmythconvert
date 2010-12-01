@@ -23,10 +23,7 @@ __PACKAGE__->table("channel");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 channum
@@ -45,10 +42,7 @@ __PACKAGE__->table("channel");
 =head2 sourceid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 callsign
@@ -155,10 +149,7 @@ __PACKAGE__->table("channel");
 =head2 serviceid
 
   data_type: 'mediumint'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 tmoffset
@@ -171,20 +162,14 @@ __PACKAGE__->table("channel");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 atsc_minor_chan
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 last_record
@@ -291,8 +276,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("chanid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hRYrGGOTWRm489jrttC8BA
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XW8B2Oap8mvWBdl3EMgV6A
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

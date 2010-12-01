@@ -23,10 +23,7 @@ __PACKAGE__->table("recorded");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 starttime
@@ -84,10 +81,7 @@ __PACKAGE__->table("recorded");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 cutlist
@@ -106,10 +100,7 @@ __PACKAGE__->table("recorded");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 recgroup
@@ -403,8 +394,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("chanid", "starttime");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xTgPSye8tQuGMT2R4bmTew
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:3BgU31PJikw6jXXdoHJ0UA
 
 __PACKAGE__->has_many( converted => 'NADTMythTV::DB::Result::NadtmythConverted', {
   'foreign.chanid' => 'self.chanid',

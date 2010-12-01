@@ -22,10 +22,7 @@ __PACKAGE__->table("music_songs");
 =head2 song_id
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
@@ -45,40 +42,28 @@ __PACKAGE__->table("music_songs");
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 artist_id
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 album_id
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 genre_id
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 year
@@ -91,30 +76,21 @@ __PACKAGE__->table("music_songs");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 numplays
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 rating
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 lastplay
@@ -148,10 +124,7 @@ __PACKAGE__->table("music_songs");
 =head2 size
 
   data_type: 'bigint'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 description
@@ -170,49 +143,34 @@ __PACKAGE__->table("music_songs");
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 disc_number
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 track_count
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 start_time
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 stop_time
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 eq_preset
@@ -231,29 +189,20 @@ __PACKAGE__->table("music_songs");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 bitrate
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 bpm
 
   data_type: 'smallint'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 directory_id
@@ -399,8 +348,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("song_id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gE3UKnq+2I4vgRSBvrHkyQ
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PdUV/WHKsumTNuWFKjX3NQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -22,29 +22,20 @@ __PACKAGE__->table("diseqc_tree");
 =head2 diseqcid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
 =head2 parentid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 ordinal
 
   data_type: 'tinyint'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 type
@@ -72,10 +63,7 @@ __PACKAGE__->table("diseqc_tree");
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 rotor_hi_speed
@@ -131,10 +119,7 @@ __PACKAGE__->table("diseqc_tree");
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =cut
@@ -191,8 +176,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("diseqcid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/MR7SZya/yp4iTSpCZnAAw
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6hKhjeoysuGhsf1F5UaPZQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -43,6 +43,7 @@ my $to_publish_inform_rs = $mythdb->resultset('NadtmythToPublishInform');
 my $publish_s3_rs = $mythdb->resultset('NadtmythPublishS3');
 my $queue_rs = $mythdb->resultset('NadtmythArchiveQueue');
 my $pubhistory_rs = $mythdb->resultset('NadtmythPublishHistory');
+my $pubchecksum_rs = $mythdb->resultset('NadtmythPublishChecksum');
 
 # build convert dirs
 my @convertdirs;
@@ -233,6 +234,19 @@ while( ! $done ) {
   for my $todel( @todel ) {
     $log->info("removing publish history record $todel: selected over 90 days ago");
     $pubhistory_rs->find( $todel )->delete;
+    $touched++;
+  }
+
+  # remove publish checksum records over the threshold
+  $log->info("looking for old publish checksum records");
+  my $pubchecksums = $pubchecksum_rs->search( { publish_date => { '<' => \'DATE_SUB(NOW(), INTERVAL 3 MONTH)' } } );
+  undef @todel;
+  while( my $pubchecksum = $pubchecksums->next ) {
+    push @todel, $pubchecksum->id;
+  }
+  for my $todel( @todel ) {
+    $log->info("removing publish checksum record $todel: selected over 90 days ago");
+    $pubchecksum_rs->find( $todel )->delete;
     $touched++;
   }
 

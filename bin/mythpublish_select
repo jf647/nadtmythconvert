@@ -7,9 +7,11 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+use Digest;
 use Getopt::Long;
 use NADTMythTV;
 use NADTMythTV::Util;
+use Path::Class qw|dir file|;
 use YAML;
 
 # parse args
@@ -40,6 +42,7 @@ my $mythdb = $nadtmyth->mythdb;
 my $converted_rs = $mythdb->resultset('NadtmythConverted');
 my $recorded_rs = $mythdb->resultset('Recorded');
 my $publish_history_rs = $mythdb->resultset('NadtmythPublishHistory');
+my $publish_checksum_rs = $mythdb->resultset('NadtmythPublishChecksum');
 
 # get a lock
 NADTMythTV::Util->lock;
@@ -102,6 +105,20 @@ while( my $convert = $converts->next ) {
         }
       }
       
+      # final check - MD5 of published files
+      my $dg = Digest->new('MD5');
+      my $convertpath = file( $convert->destdir, $convert->destfile );
+      my $fh = IO::File->new( $convertpath )
+        or die "can't open $convertpath for read: $!";
+      $dg->addfile( $fh );
+      $fh->close;
+      my $file_digest = $dg->hexdigest;
+      my $count = $publish_checksum_rs->search( { digest => $file_digest } )->count;
+      if( 0 != $count ) {
+        $log->info("digest '$file_digest' for $convertpath found in history");
+        next;
+      }
+
       # create the to_publish record if needed
       my $to_publish;
       if( $found_in_history ) {
@@ -137,7 +154,7 @@ while( my $convert = $converts->next ) {
           select_date => \'NOW()',
         } );
       }
-
+      
       # create to_publish_dest records if needed
       for my $dest( keys %{ $matchprofile->{dest} } ) {
         my $to_publish_dest;
@@ -165,6 +182,12 @@ while( my $convert = $converts->next ) {
           }
         }
       }
+      
+      # create a publish checksum record
+      $publish_checksum_rs->create( {
+        digest => $file_digest,
+        publish_date => \'NOW()',
+      } );
 
     }
   }

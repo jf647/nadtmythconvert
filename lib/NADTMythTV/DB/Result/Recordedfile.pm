@@ -23,10 +23,7 @@ __PACKAGE__->table("recordedfile");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 starttime
@@ -52,20 +49,14 @@ __PACKAGE__->table("recordedfile");
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 height
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 fps
@@ -73,51 +64,34 @@ __PACKAGE__->table("recordedfile");
   data_type: 'float'
   default_value: 0.000
   is_nullable: 0
-  size: [
-  6,
-  3
-]
-
+  size: [6,3]
 
 =head2 aspect
 
   data_type: 'float'
   default_value: 0.000000
   is_nullable: 0
-  size: [
-  8,
-  6
-]
-
+  size: [8,6]
 
 =head2 audio_sample_rate
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 audio_bits_per_sample
 
   data_type: 'smallint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 audio_channels
 
   data_type: 'tinyint'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 audio_type
@@ -245,8 +219,8 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("chanid", ["chanid", "starttime", "basename"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hFOKJEJK/nCP9b6+bYrcQQ
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HWpA1RwW7frxBovG1eoUsA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

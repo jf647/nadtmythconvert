@@ -22,10 +22,7 @@ __PACKAGE__->table("phonecallhistory");
 =head2 recid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
@@ -47,28 +44,19 @@ __PACKAGE__->table("phonecallhistory");
 =head2 duration
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 directionin
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 directoryref
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =cut
@@ -97,8 +85,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("recid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RiX1LxSZY2hdQCebl2tkeg
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wHJoGsFF9tz1zN9oH/t6sQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

@@ -22,10 +22,7 @@ __PACKAGE__->table("record");
 =head2 recordid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
@@ -33,19 +30,13 @@ __PACKAGE__->table("record");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 chanid
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 1
 
 =head2 starttime
@@ -185,10 +176,7 @@ __PACKAGE__->table("record");
 
   data_type: 'integer'
   default_value: 0
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_nullable: 0
 
 =head2 autotranscode
@@ -442,8 +430,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("recordid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:U9wqkNIVHyxIdKD5XbUPQQ
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7R+nkZ/ipTQPEX9wdw30PA
 
 __PACKAGE__->has_one( program => 'NADTMythTV::DB::Result::Program', 'programid' );
 __PACKAGE__->has_many( recorded => 'NADTMythTV::DB::Result::Recorded', 'recordid' );

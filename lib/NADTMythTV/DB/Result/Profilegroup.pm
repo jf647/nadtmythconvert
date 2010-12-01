@@ -22,10 +22,7 @@ __PACKAGE__->table("profilegroups");
 =head2 id
 
   data_type: 'integer'
-  extra: {
-  unsigned => 1
-}
-
+  extra: {unsigned => 1}
   is_auto_increment: 1
   is_nullable: 0
 
@@ -82,8 +79,8 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("name", ["name", "hostname"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07000 @ 2010-07-24 15:02:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:R626Tz0xCYWIyZWUJ/Odgg
+# Created by DBIx::Class::Schema::Loader v0.07002 @ 2010-12-01 16:49:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ES2dTqe9ak9Lc/Dp4SSS1g
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
