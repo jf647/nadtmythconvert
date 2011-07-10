@@ -1,0 +1,119 @@
+---
+lockfiles:
+  autoclean: 1
+  delay: 5
+  format: /home/mythtv/var/run/%F.lock
+  hold: 0
+  max: 2880
+  stale: 1
+  wmin: 30
+  wafter: 30
+dow_to_startup_profile:
+    - weekend
+    - weekday
+    - weekday
+    - weekday
+    - weekday
+    - weekday
+    - weekend
+startup_times:
+    weekday:
+        1:
+            start: 02:00
+            end: 02:20
+        2:
+            start: 07:20
+            end: 16:50
+    weekend:
+        1:
+            start: 02:00
+            end: 02:20
+        2:
+            start: 00:00
+            end: 00:00
+directories:
+  temp: /srv/mythtv/tmp
+output:
+  H264:
+    command: Handbrake
+    dir: /srv/mythtv/transcoded/h264
+    hb_presets:
+      - Television
+    hb_opts:
+      - --subtitle-burn
+    container: mp4
+    mode: 660
+    jobqueue_type: 1024
+    links:
+      - /srv/mythtv/transcoded/h264_links/%%TITLE%% - %%STARTTIME%%.mp4
+  MP3:
+    command: FFmpeg
+    dir: /srv/mythtv/transcoded/mp3
+    container: mp3
+    acodec: libmp3lame
+    abitrate: 192k
+    mode: 660
+    jobqueue_type: 512
+    links:
+      - /srv/mythtv/transcoded/mp3_links/%%TITLE%% - %%STARTTIME%%.mp3
+logging:
+  log4perl.logger: INFO, FILE
+  log4perl.appender.FILE: Log::Log4perl::Appender::File
+  log4perl.appender.FILE.filename: /var/log/mythtv/nadtmythconvert.log
+  log4perl.appender.FILE.umask: 007
+  log4perl.appender.FILE.layout: Log::Log4perl::Layout::PatternLayout
+  log4perl.appender.FILE.layout.ConversionPattern: '%d %X{progname}[%P] [%-5p] %m%n'
+  log4perl.appender.SCREEN: Log::Log4perl::Appender::Screen
+  log4perl.appender.SCREEN.layout: Log::Log4perl::Layout::PatternLayout
+  log4perl.appender.SCREEN.layout.ConversionPattern: '%d %X{progname} [%-5p] %m%n'
+commands:
+  ffmpeg: /usr/local/bin/ffmpeg
+  handbrake: /usr/bin/HandBrakeCLI
+  nice: /usr/bin/nice
+  nicelevel: 19
+  atomicparsley: /usr/bin/AtomicParsley
+  id3: /usr/bin/id3
+cleanup:
+  temp_maxdays: 2
+rss:
+  iphone:
+    destdir: /srv/mythtv/transcoded/published
+    keepdays: 7
+    match:
+      - The Simpsons
+publish:
+  inform:
+    template:
+      subject: /home/mythtv/etc/mythpublish_inform_subject.template
+      body: /home/mythtv/etc/mythpublish_inform_body.template
+      from: nadtmythtv@example.com
+    smtp:
+      server: smtp.example.com
+      port: 25
+      ssl: 0
+      user: user@example.com
+      pass: password
+  dests:
+    s3cmd:
+      type: NADTMythTV::Publish::S3Cmd
+      bucket: bucketname
+      putcmd: %%THROTTLE%% /usr/bin/s3cmd put -P --add-header=x-amz-storage-class:REDUCED_REDUNDANCY --mime-type=binary/octet-stream %%FILE%% "%%DEST%%"
+      delcmd: /usr/bin/s3cmd del "%%URL%%"
+      lscmd: /usr/bin/s3cmd ls "%%URL%%" > %%TEMPFILE%%
+      throttlecmd: /usr/bin/trickle -s -u %%LIMIT%% -t 5
+  match:
+    - regex: Radio Show Title
+      format: MP3
+      dest:
+        s3cmd:
+          inform:
+            - foo@example.com
+            - bar@example.com
+          keepdays: 7
+    - regex: TV Show Title
+      format: H264
+      dest:
+        s3cmd:
+          inform:
+            - baz@example.com
+          keepdays: 7
